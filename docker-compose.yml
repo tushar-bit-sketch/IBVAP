@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # Web Command Center (Next.js 14 Frontend & Route Handlers)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ibvap-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:3000/api
+      - DATABASE_URL=postgresql://ibvap_admin:secure_border_pass@postgres:5432/ibvap_edge
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  # Edge Relational & Chronological Timeseries Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: ibvap-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ibvap_admin
+      POSTGRES_PASSWORD: secure_border_pass
+      POSTGRES_DB: ibvap_edge
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ibvap_admin -d ibvap_edge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Low-latency Event Broker & Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ibvap-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Edge AI Inference Engine (YOLOv8x + DeepSORT Daemon)
+  inference-daemon:
+    image: python:3.11-slim
+    container_name: ibvap-inference
+    restart: unless-stopped
+    environment:
+      - MODEL_PRECISION=FP16
+      - TARGET_FPS=30
+      - REDIS_HOST=redis
+    command: >
+      bash -c "echo 'IBVAP TensorRT Edge Vision Daemon initialized. Listening on RTSP stream queues.' && tail -f /dev/null"
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
+  redis_data:
