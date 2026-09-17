@@ -137,21 +137,21 @@ export function CommandSidebar() {
 
   return (
     <aside 
-      className={`border-r border-neutral-800/80 bg-obsidian-300/95 backdrop-blur transition-all duration-200 flex flex-col justify-between select-none z-20 shrink-0 ${
+      className={`border-r border-sandal-200 bg-sandal-50/95 backdrop-blur transition-all duration-200 flex flex-col justify-between select-none z-20 shrink-0 ${
         collapsed ? 'w-16' : 'w-64'
       }`}
     >
       {/* Top Nav List */}
       <div className="flex flex-col py-3 overflow-y-auto max-h-screen">
-        <div className="px-3 pb-2 mb-2 border-b border-neutral-800/60 flex items-center justify-between">
+        <div className="px-3 pb-2 mb-2 border-b border-sandal-200/80 flex items-center justify-between">
           {!collapsed && (
-            <span className="font-mono text-[10px] text-neutral-600 uppercase tracking-widest font-medium">
+            <span className="font-mono text-[10px] text-sandal-800 uppercase tracking-widest font-semibold">
               Navigation
             </span>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-colors ml-auto"
+            className="p-1 rounded text-stone-500 hover:text-stone-900 hover:bg-sandal-100 transition-colors ml-auto"
             title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -170,11 +170,11 @@ export function CommandSidebar() {
                 title={collapsed ? item.label : undefined}
                 className={`flex items-center gap-3 px-2.5 py-1.5 rounded font-mono text-xs transition-all relative group ${
                   isActive
-                    ? 'bg-neutral-800/90 text-white font-semibold border-l-2 border-neutral-300 shadow-inner'
-                    : 'text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800/40'
+                    ? 'bg-white text-stone-950 font-bold border-l-2 border-sandal-600 shadow-xs'
+                    : 'text-stone-600 hover:text-stone-950 hover:bg-sandal-100/70'
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-neutral-500 group-hover:text-neutral-300'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-sandal-700' : 'text-stone-500 group-hover:text-stone-800'}`} />
 
                 {!collapsed && (
                   <>
@@ -184,7 +184,7 @@ export function CommandSidebar() {
 
                     {item.badge && (
                       <span className={`px-1.5 py-0.2 rounded font-mono text-[9px] font-bold ${
-                        item.badgeColor || 'bg-neutral-900 border border-neutral-800 text-neutral-400'
+                        item.badgeColor || 'bg-white border border-sandal-200 text-stone-700'
                       }`}>
                         {item.badge}
                       </span>
@@ -199,17 +199,17 @@ export function CommandSidebar() {
 
       {/* Bottom Outpost Telemetry Status */}
       {!collapsed && (
-        <div className="p-3 border-t border-neutral-800/60 bg-obsidian-200/50">
-          <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 mb-1">
-            <span>System status</span>
-            <span className="text-emerald-400">Nominal</span>
+        <div className="p-3 border-t border-sandal-200/80 bg-white/70">
+          <div className="flex items-center justify-between text-[10px] font-mono text-stone-600 mb-1">
+            <span className="font-medium">System status</span>
+            <span className="text-emerald-700 font-bold">Nominal</span>
           </div>
-          <div className="w-full bg-neutral-800 rounded-full h-1 overflow-hidden">
-            <div className="bg-neutral-400 h-full w-[88%]" />
+          <div className="w-full bg-sandal-200 rounded-full h-1 overflow-hidden">
+            <div className="bg-sandal-600 h-full w-[88%]" />
           </div>
-          <div className="flex items-center justify-between text-[9px] font-mono text-neutral-500 mt-1">
+          <div className="flex items-center justify-between text-[9px] font-mono text-stone-500 mt-1">
             <span>YOLOv8x · DeepSORT</span>
-            <span>28.8 fps <span className="text-neutral-600">[sim]</span></span>
+            <span>28.8 fps <span className="text-stone-400">[sim]</span></span>
           </div>
         </div>
       )}

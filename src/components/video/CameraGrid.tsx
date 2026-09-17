@@ -36,26 +36,26 @@ export function CameraGrid({ cameras: propCameras }: CameraGridProps) {
         // Expanded Focus View
         <div className="flex-1 grid grid-cols-1 xl:grid-cols-4 gap-3 h-full overflow-hidden">
           {/* Main Feed View (3 cols) */}
-          <div className="xl:col-span-3 flex flex-col h-full bg-black border border-neutral-800 rounded-sm overflow-hidden">
-            <div className="p-2 border-b border-neutral-800 bg-neutral-900/60 flex items-center justify-between">
+          <div className="xl:col-span-3 flex flex-col h-full bg-black border border-sandal-300 rounded-lg overflow-hidden shadow-2xs">
+            <div className="p-2.5 border-b border-sandal-200 bg-white flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-white px-2 py-0.5 bg-neutral-800 rounded border border-neutral-700">
+                <span className="font-mono text-xs font-bold text-stone-950 px-2 py-0.5 bg-sandal-100 rounded border border-sandal-200">
                   {activeCam.id}
                 </span>
-                <span className="font-mono text-xs text-neutral-300 font-semibold">
+                <span className="font-mono text-xs text-stone-800 font-semibold">
                   {activeCam.name} — {activeCam.sector}
                 </span>
               </div>
               <button
                 onClick={() => setSelectedCameraId(null)}
-                className="flex items-center gap-1.5 px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-mono transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-stone-900 hover:bg-stone-800 text-white text-xs font-mono transition-colors shadow-2xs font-semibold"
               >
-                <Grid2X2 className="w-3.5 h-3.5" />
+                <Grid2X2 className="w-3.5 h-3.5 text-sandal-300" />
                 <span>GRID VIEW</span>
               </button>
             </div>
 
-            <div className="flex-1 relative min-h-[400px]">
+            <div className="flex-1 relative min-h-[400px] bg-black">
               <CameraFeed
                 camera={activeCam}
                 isExpanded={true}
@@ -67,24 +67,24 @@ export function CameraGrid({ cameras: propCameras }: CameraGridProps) {
           {/* Right Inspector Column for Expanded Feed */}
           <div className="xl:col-span-1 flex flex-col gap-3 h-full overflow-y-auto">
             {/* Real-time Objects in Frame */}
-            <div className="bg-obsidian-200 border border-neutral-800 p-3 rounded-sm">
+            <div className="bg-white border border-sandal-200 p-3.5 rounded-lg shadow-2xs">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-mono text-[10px] text-neutral-400 font-bold uppercase tracking-wider">
+                <span className="font-mono text-[10px] text-stone-500 font-bold uppercase tracking-wider">
                   ACTIVE DETECTIONS ({activeCam.currentDetections.length})
                 </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-tactical-green animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
               </div>
               <div className="flex flex-col gap-2">
                 {activeCam.currentDetections.map(det => (
-                  <div key={det.id} className="p-2 rounded bg-neutral-900 border border-neutral-800 flex flex-col gap-1 font-mono text-xs">
+                  <div key={det.id} className="p-2.5 rounded-lg bg-[#faf8f5] border border-sandal-200 flex flex-col gap-1 font-mono text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-white uppercase">{det.class}</span>
-                      <span className="text-tactical-green text-[10px]">{det.trackingId}</span>
+                      <span className="font-bold text-stone-900 uppercase">{det.class}</span>
+                      <span className="text-emerald-700 text-[10px] font-bold">{det.trackingId}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-neutral-400">
+                    <div className="flex items-center justify-between text-[10px] text-stone-500">
                       <span>CONF: {(det.confidence * 100).toFixed(0)}%</span>
                       {det.speedKmh && <span>VEL: {det.speedKmh} km/h</span>}
-                      {det.loiterSeconds && <span className="text-tactical-amber">LOITER: {det.loiterSeconds}s</span>}
+                      {det.loiterSeconds && <span className="text-amber-800 font-bold">LOITER: {det.loiterSeconds}s</span>}
                     </div>
                   </div>
                 ))}
@@ -92,21 +92,21 @@ export function CameraGrid({ cameras: propCameras }: CameraGridProps) {
             </div>
 
             {/* Virtual Zones Status */}
-            <div className="bg-obsidian-200 border border-neutral-800 p-3 rounded-sm">
-              <span className="font-mono text-[10px] text-neutral-400 font-bold uppercase tracking-wider block mb-2">
+            <div className="bg-white border border-sandal-200 p-3.5 rounded-lg shadow-2xs">
+              <span className="font-mono text-[10px] text-stone-500 font-bold uppercase tracking-wider block mb-2">
                 CONFIGURED ZONES ({activeCam.activeZones.length})
               </span>
               <div className="flex flex-col gap-1.5 font-mono text-xs">
                 {activeCam.activeZones.map(zone => (
-                  <div key={zone.id} className="flex items-center justify-between p-2 rounded bg-neutral-900 border border-neutral-800">
+                  <div key={zone.id} className="flex items-center justify-between p-2 rounded-lg bg-[#faf8f5] border border-sandal-200">
                     <div>
-                      <div className="font-semibold text-neutral-200 text-[11px]">{zone.name}</div>
-                      <div className="text-[9px] text-neutral-500">{zone.type}</div>
+                      <div className="font-semibold text-stone-900 text-[11px]">{zone.name}</div>
+                      <div className="text-[9px] text-stone-500">{zone.type}</div>
                     </div>
                     <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
                       zone.status === 'TRIGGERED' 
-                        ? 'bg-red-950 text-tactical-red border border-red-800' 
-                        : 'bg-neutral-800 text-tactical-cyan'
+                        ? 'bg-red-50 text-red-700 border border-red-200' 
+                        : 'bg-sandal-100 text-sandal-800 border border-sandal-200'
                     }`}>
                       {zone.status}
                     </span>
@@ -116,34 +116,34 @@ export function CameraGrid({ cameras: propCameras }: CameraGridProps) {
             </div>
 
             {/* PTZ Simulation Controls */}
-            <div className="bg-obsidian-200 border border-neutral-800 p-3 rounded-sm">
-              <span className="font-mono text-[10px] text-neutral-400 font-bold uppercase tracking-wider block mb-2">
+            <div className="bg-white border border-sandal-200 p-3.5 rounded-lg shadow-2xs">
+              <span className="font-mono text-[10px] text-stone-500 font-bold uppercase tracking-wider block mb-2">
                 OPTICAL / PTZ CONTROL
               </span>
-              <div className="flex flex-col items-center gap-1.5 p-2 bg-neutral-900 rounded border border-neutral-800">
-                <button className="p-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300">
+              <div className="flex flex-col items-center gap-1.5 p-2 bg-[#faf8f5] rounded-lg border border-sandal-200">
+                <button className="p-1 rounded bg-white border border-sandal-200 hover:bg-sandal-50 text-stone-700 shadow-2xs">
                   <ArrowUp className="w-4 h-4" />
                 </button>
                 <div className="flex items-center gap-3">
-                  <button className="p-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300">
+                  <button className="p-1 rounded bg-white border border-sandal-200 hover:bg-sandal-50 text-stone-700 shadow-2xs">
                     <ArrowLeft className="w-4 h-4" />
                   </button>
-                  <div className="w-4 h-4 rounded-full border border-neutral-600 flex items-center justify-center">
-                    <span className="w-1.5 h-1.5 rounded-full bg-tactical-cyan" />
+                  <div className="w-4 h-4 rounded-full border border-sandal-400 flex items-center justify-center">
+                    <span className="w-1.5 h-1.5 rounded-full bg-sandal-600" />
                   </div>
-                  <button className="p-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300">
+                  <button className="p-1 rounded bg-white border border-sandal-200 hover:bg-sandal-50 text-stone-700 shadow-2xs">
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
-                <button className="p-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300">
+                <button className="p-1 rounded bg-white border border-sandal-200 hover:bg-sandal-50 text-stone-700 shadow-2xs">
                   <ArrowDown className="w-4 h-4" />
                 </button>
-                <div className="flex items-center gap-2 pt-2 border-t border-neutral-800 w-full justify-center">
-                  <button className="flex items-center gap-1 px-2 py-1 bg-neutral-800 hover:bg-neutral-700 rounded text-[10px] font-mono text-neutral-300">
-                    <ZoomIn className="w-3 h-3" /> ZOOM +
+                <div className="flex items-center gap-2 pt-2 border-t border-sandal-200 w-full justify-center">
+                  <button className="flex items-center gap-1 px-2 py-1 bg-white border border-sandal-200 hover:bg-sandal-50 rounded text-[10px] font-mono text-stone-700 shadow-2xs font-semibold">
+                    <ZoomIn className="w-3 h-3 text-sandal-600" /> ZOOM +
                   </button>
-                  <button className="flex items-center gap-1 px-2 py-1 bg-neutral-800 hover:bg-neutral-700 rounded text-[10px] font-mono text-neutral-300">
-                    <ZoomOut className="w-3 h-3" /> ZOOM -
+                  <button className="flex items-center gap-1 px-2 py-1 bg-white border border-sandal-200 hover:bg-sandal-50 rounded text-[10px] font-mono text-stone-700 shadow-2xs font-semibold">
+                    <ZoomOut className="w-3 h-3 text-sandal-600" /> ZOOM -
                   </button>
                 </div>
               </div>

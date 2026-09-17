@@ -37,75 +37,75 @@ export function AlertDrawer() {
   const threat = selectedAlert.threatBreakdown;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm transition-all duration-300 select-none">
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs transition-all duration-300 select-none">
       {/* Drawer Panel */}
-      <div className="w-full max-w-lg bg-obsidian-200 border-l border-neutral-800 h-full flex flex-col shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200 font-sans">
+      <div className="w-full max-w-lg bg-white border-l border-sandal-300 h-full flex flex-col shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200 font-sans">
         {/* Header */}
         <div className={`p-4 border-b flex items-start justify-between ${
-          isCritical ? 'bg-red-950/30 border-red-900/60' : 'bg-neutral-900/60 border-neutral-800'
+          isCritical ? 'bg-red-50 border-red-200' : 'bg-sandal-50 border-sandal-200'
         }`}>
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold tracking-wider ${
-                isCritical ? 'bg-red-950 border border-red-800 text-tactical-red' : 'bg-neutral-800 text-neutral-300'
+                isCritical ? 'bg-red-100 border border-red-300 text-red-800' : 'bg-white border border-sandal-200 text-stone-700'
               }`}>
                 {selectedAlert.severity} EVENT
               </span>
-              <span className="font-mono text-xs text-neutral-400">
+              <span className="font-mono text-xs text-stone-500">
                 ID: {selectedAlert.id}
               </span>
-              <span className="px-1.5 py-0.2 rounded bg-neutral-900 border border-neutral-800 font-mono text-[9px] text-neutral-400 uppercase">
+              <span className="px-1.5 py-0.2 rounded bg-white border border-sandal-200 font-mono text-[9px] text-stone-600 uppercase font-semibold">
                 {selectedAlert.status}
               </span>
             </div>
-            <h2 className="font-mono text-base font-bold text-white tracking-wide">
+            <h2 className="font-mono text-base font-bold text-stone-950 tracking-wide">
               {selectedAlert.type.replace('_', ' ')}
             </h2>
           </div>
           <button
             onClick={() => setIsAlertDrawerOpen(false)}
-            className="p-1 rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
+            className="p-1 rounded text-stone-500 hover:text-stone-900 hover:bg-sandal-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Snapshot Evidence Frame */}
-        <div className="p-4 border-b border-neutral-800 bg-black">
-          <span className="font-mono text-[10px] text-neutral-500 uppercase tracking-widest block mb-2 font-semibold">
-            PRIMARY INCIDENT FRAME SNAPSHOT
+        <div className="p-4 border-b border-sandal-200 bg-obsidian">
+          <span className="font-mono text-[10px] text-stone-600 uppercase tracking-widest block mb-2 font-semibold">
+            Primary incident frame snapshot
           </span>
-          <div className="relative aspect-video rounded overflow-hidden border border-neutral-800 group">
+          <div className="relative aspect-video rounded overflow-hidden border border-sandal-300 group bg-black shadow-xs">
             <img
               src={selectedAlert.snapshotUrl || 'https://images.unsplash.com/photo-1566847936715-5e147ef9caec?auto=format&fit=crop&w=800&q=80'}
               alt="Incident Snapshot"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 scanline-layer opacity-40 pointer-events-none" />
+            <div className="absolute inset-0 scanline-layer opacity-20 pointer-events-none" />
             <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/80 border border-neutral-700 rounded font-mono text-[9px] text-white">
               {selectedAlert.cameraId} / {selectedAlert.timestamp}
             </div>
             {/* Target Reticle Indicator */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-tactical-red border-dashed rounded flex items-center justify-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-tactical-red" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-red-500 border-dashed rounded flex items-center justify-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
             </div>
           </div>
         </div>
 
         {/* Explainable Threat Scoring Factor Breakdown */}
         {threat && (
-          <div className="p-4 border-b border-neutral-800 bg-obsidian-100 font-mono">
+          <div className="p-4 border-b border-sandal-200 bg-sandal-50 font-mono">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                <Zap className="w-4 h-4 text-tactical-cyan" />
-                <span>EXPLAINABLE THREAT ENGINE (XAI)</span>
+              <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                <Zap className="w-4 h-4 text-sandal-600" />
+                <span>Explainable threat engine (XAI)</span>
               </span>
-              <span className="px-2 py-0.5 rounded bg-red-950 border border-red-800 text-tactical-red font-bold text-xs">
-                SCORE: {threat.score} / 100 [{threat.level}]
+              <span className="px-2 py-0.5 rounded bg-red-100 border border-red-300 text-red-800 font-bold text-xs">
+                Score: {threat.score} / 100 [{threat.level}]
               </span>
             </div>
 
-            <p className="text-[11px] text-neutral-300 italic mb-3 font-sans leading-relaxed">
+            <p className="text-[11px] text-stone-700 italic mb-3 font-sans leading-relaxed">
               &ldquo;{threat.reason}&rdquo;
             </p>
 
@@ -113,17 +113,17 @@ export function AlertDrawer() {
               {threat.factors.map((factor, idx) => (
                 <div 
                   key={idx} 
-                  className="flex items-center justify-between p-1.5 rounded bg-obsidian-200 border border-neutral-800/80"
+                  className="flex items-center justify-between p-1.5 rounded bg-white border border-sandal-200 shadow-2xs"
                 >
                   <div className="min-w-0 pr-2">
-                    <span className="font-bold text-neutral-200 block text-[11px] truncate">
+                    <span className="font-bold text-stone-900 block text-[11px] truncate">
                       {factor.name}
                     </span>
-                    <span className="text-[10px] text-neutral-500 block truncate">
+                    <span className="text-[10px] text-stone-500 block truncate">
                       {factor.description}
                     </span>
                   </div>
-                  <span className="px-1.5 py-0.2 rounded bg-neutral-800 text-tactical-cyan font-bold text-[10px] shrink-0">
+                  <span className="px-1.5 py-0.2 rounded bg-sandal-100 text-sandal-800 font-bold text-[10px] shrink-0">
                     +{factor.weight}
                   </span>
                 </div>
@@ -133,61 +133,61 @@ export function AlertDrawer() {
         )}
 
         {/* Forensic Metadata Grid */}
-        <div className="p-4 flex flex-col gap-4 flex-1">
+        <div className="p-4 flex flex-col gap-4 flex-1 bg-white">
           <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-            <div className="p-2.5 rounded bg-neutral-900/80 border border-neutral-800 flex flex-col gap-0.5">
-              <span className="text-[10px] text-neutral-500 font-semibold uppercase">CAMERA FEED</span>
-              <span className="text-neutral-200 font-bold">{selectedAlert.cameraId}</span>
-              <span className="text-[10px] text-neutral-400 truncate">{selectedAlert.cameraName}</span>
+            <div className="p-2.5 rounded bg-sandal-50/70 border border-sandal-200 flex flex-col gap-0.5">
+              <span className="text-[10px] text-stone-500 font-semibold uppercase">Camera feed</span>
+              <span className="text-stone-900 font-bold">{selectedAlert.cameraId}</span>
+              <span className="text-[10px] text-stone-600 truncate">{selectedAlert.cameraName}</span>
             </div>
 
-            <div className="p-2.5 rounded bg-neutral-900/80 border border-neutral-800 flex flex-col gap-0.5">
-              <span className="text-[10px] text-neutral-500 font-semibold uppercase">ZONE PERIMETER</span>
-              <span className="text-neutral-200 font-bold">{selectedAlert.zoneName || 'UNASSIGNED'}</span>
-              <span className="text-[10px] text-neutral-400">{selectedAlert.zoneId || 'ZONE-01'}</span>
+            <div className="p-2.5 rounded bg-sandal-50/70 border border-sandal-200 flex flex-col gap-0.5">
+              <span className="text-[10px] text-stone-500 font-semibold uppercase">Zone perimeter</span>
+              <span className="text-stone-900 font-bold">{selectedAlert.zoneName || 'UNASSIGNED'}</span>
+              <span className="text-[10px] text-stone-600">{selectedAlert.zoneId || 'ZONE-01'}</span>
             </div>
 
-            <div className="p-2.5 rounded bg-neutral-900/80 border border-neutral-800 flex flex-col gap-0.5">
-              <span className="text-[10px] text-neutral-500 font-semibold uppercase">CLASSIFIED TARGET</span>
-              <span className="text-neutral-200 font-bold">{selectedAlert.objectId}</span>
-              <span className="text-[10px] text-tactical-green">CONF: {(selectedAlert.confidence * 100).toFixed(1)}%</span>
+            <div className="p-2.5 rounded bg-sandal-50/70 border border-sandal-200 flex flex-col gap-0.5">
+              <span className="text-[10px] text-stone-500 font-semibold uppercase">Classified target</span>
+              <span className="text-stone-900 font-bold">{selectedAlert.objectId}</span>
+              <span className="text-[10px] text-emerald-700 font-semibold">Conf: {(selectedAlert.confidence * 100).toFixed(1)}%</span>
             </div>
 
-            <div className="p-2.5 rounded bg-neutral-900/80 border border-neutral-800 flex flex-col gap-0.5">
-              <span className="text-[10px] text-neutral-500 font-semibold uppercase">ENTRY TRAJECTORY</span>
-              <span className="text-neutral-200 font-bold">{selectedAlert.direction || 'ENTRY VECTOR'}</span>
-              <span className="text-[10px] text-neutral-400">{selectedAlert.timestamp}</span>
+            <div className="p-2.5 rounded bg-sandal-50/70 border border-sandal-200 flex flex-col gap-0.5">
+              <span className="text-[10px] text-stone-500 font-semibold uppercase">Entry trajectory</span>
+              <span className="text-stone-900 font-bold">{selectedAlert.direction || 'ENTRY VECTOR'}</span>
+              <span className="text-[10px] text-stone-600">{selectedAlert.timestamp}</span>
             </div>
           </div>
 
           {/* Description narrative */}
-          <div className="p-3 rounded bg-neutral-900/50 border border-neutral-800 font-mono text-xs">
-            <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold block mb-1">
-              SYSTEM INCIDENT LOG
+          <div className="p-3 rounded bg-sandal-50/50 border border-sandal-200 font-mono text-xs">
+            <span className="text-[10px] text-stone-500 uppercase tracking-widest font-semibold block mb-1">
+              System incident log
             </span>
-            <p className="text-neutral-300 leading-relaxed font-sans text-xs">
+            <p className="text-stone-700 leading-relaxed font-sans text-xs">
               {selectedAlert.description}
             </p>
           </div>
         </div>
 
         {/* Operational Actions Footer */}
-        <div className="p-4 border-t border-neutral-800 bg-neutral-950 flex flex-col gap-2 font-mono text-xs">
+        <div className="p-4 border-t border-sandal-200 bg-sandal-50/60 flex flex-col gap-2 font-mono text-xs">
           {!selectedAlert.acknowledged ? (
             <button
               onClick={() => acknowledgeAlert(selectedAlert.id)}
-              className="w-full py-2.5 rounded bg-neutral-100 text-neutral-950 hover:bg-white font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-2 transition-all active:scale-95"
+              className="w-full py-2.5 rounded bg-stone-900 text-white hover:bg-stone-800 font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
             >
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>ACKNOWLEDGE INCIDENT</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Acknowledge incident</span>
             </button>
           ) : (
-            <div className="p-2 rounded bg-neutral-900 border border-neutral-800 flex items-center justify-between text-neutral-400">
-              <span className="flex items-center gap-1.5 text-tactical-green">
+            <div className="p-2 rounded bg-white border border-sandal-200 flex items-center justify-between text-stone-600 shadow-2xs">
+              <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
                 <CheckCircle2 className="w-4 h-4" />
-                <span>ACKNOWLEDGED BY {selectedAlert.acknowledgedBy || 'OPERATOR'}</span>
+                <span>Acknowledged by {selectedAlert.acknowledgedBy || 'Operator'}</span>
               </span>
-              <span className="text-[10px] text-neutral-500">{selectedAlert.timestamp}</span>
+              <span className="text-[10px] text-stone-500">{selectedAlert.timestamp}</span>
             </div>
           )}
 
@@ -196,18 +196,18 @@ export function AlertDrawer() {
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => resolveAlert(selectedAlert.id, 'Patrol verified perimeter is secure.')}
-                className="py-2 px-3 rounded bg-emerald-950/60 border border-emerald-800 text-tactical-green hover:bg-emerald-900/60 transition-colors flex items-center justify-center gap-1.5 font-bold"
+                className="py-2 px-3 rounded bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-1.5 font-bold shadow-2xs"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>RESOLVE INCIDENT</span>
+                <span>Resolve incident</span>
               </button>
               <button
                 onClick={() => resolveAlert(selectedAlert.id, 'Flagged as animal/swaying branch detection.', true)}
-                className="py-2 px-3 rounded bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition-colors flex items-center justify-center gap-1.5"
+                className="py-2 px-3 rounded bg-white border border-sandal-200 text-stone-600 hover:text-stone-950 hover:bg-sandal-50 transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
                 title="Feeds edge pipeline feedback loop to reduce sensitivity"
               >
                 <AlertOctagon className="w-3.5 h-3.5" />
-                <span>FALSE POSITIVE</span>
+                <span>False positive</span>
               </button>
             </div>
           )}
@@ -218,19 +218,19 @@ export function AlertDrawer() {
                 setSelectedCameraId(selectedAlert.cameraId);
                 setIsAlertDrawerOpen(false);
               }}
-              className="py-2 px-3 rounded bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-neutral-300 flex items-center justify-center gap-2 transition-colors"
+              className="py-2 px-3 rounded bg-white border border-sandal-200 hover:bg-sandal-50 text-stone-800 flex items-center justify-center gap-2 transition-colors shadow-2xs font-medium"
             >
-              <Video className="w-3.5 h-3.5" />
-              <span>OPEN CAMERA FEED</span>
+              <Video className="w-3.5 h-3.5 text-sandal-700" />
+              <span>Open camera feed</span>
             </button>
 
             <Link
               href="/evidence"
               onClick={() => setIsAlertDrawerOpen(false)}
-              className="py-2 px-3 rounded bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-neutral-300 flex items-center justify-center gap-2 transition-colors"
+              className="py-2 px-3 rounded bg-white border border-sandal-200 hover:bg-sandal-50 text-stone-800 flex items-center justify-center gap-2 transition-colors shadow-2xs font-medium"
             >
-              <FileCheck className="w-3.5 h-3.5 text-tactical-cyan" />
-              <span>FORENSIC VAULT</span>
+              <FileCheck className="w-3.5 h-3.5 text-sandal-700" />
+              <span>Forensic vault</span>
             </Link>
           </div>
         </div>

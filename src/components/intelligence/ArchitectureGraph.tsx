@@ -103,33 +103,33 @@ export function ArchitectureGraph() {
   const [activeNode, setActiveNode] = useState<ArchNode>(NODES[2]);
 
   return (
-    <div className="w-full flex flex-col gap-6 font-mono select-none">
+    <div className="w-full flex flex-col gap-5 font-mono select-none">
       {/* Edge-First Banner */}
-      <div className="p-4 rounded bg-obsidian-200 border border-neutral-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-4 rounded-lg bg-white border border-sandal-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded bg-neutral-900 border border-neutral-700 text-tactical-green">
+          <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700">
             <CloudOff className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest block">
+            <span className="text-[10px] text-stone-500 font-bold uppercase tracking-widest block">
               PARADIGM SHIFT: ZERO CLOUD DEPENDENCY AT THE PERIMETER
             </span>
-            <h3 className="text-sm font-bold text-white tracking-wide">
-              100% LOCAL EDGE INFERENCE & AUTONOMOUS SURVIVABILITY
+            <h3 className="text-sm font-bold text-stone-950 tracking-wide">
+              100% LOCAL EDGE INFERENCE &amp; AUTONOMOUS SURVIVABILITY
             </h3>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-black/60 border border-neutral-800 text-xs">
-          <span className="w-2 h-2 rounded-full bg-tactical-green animate-pulse" />
-          <span className="text-neutral-300">WAN DISCONNECTED: FULLY OPERATIONAL</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs shadow-2xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+          <span className="text-emerald-900 font-semibold text-[11px]">WAN DISCONNECTED: FULLY OPERATIONAL</span>
         </div>
       </div>
 
       {/* Pipeline Diagram */}
-      <div className="p-4 bg-black border border-neutral-800 rounded flex flex-col gap-4">
-        <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold">
-          SYSTEM DATA FLOW & PIPELINE STAGES (CLICK NODE TO INSPECT)
+      <div className="p-5 bg-white border border-sandal-200 rounded-lg flex flex-col gap-4 shadow-2xs">
+        <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">
+          SYSTEM DATA FLOW &amp; PIPELINE STAGES (CLICK NODE TO INSPECT)
         </span>
 
         {/* Nodes Grid / Chain */}
@@ -140,35 +140,35 @@ export function ArchitectureGraph() {
               <div
                 key={node.id}
                 onClick={() => setActiveNode(node)}
-                className={`p-3 rounded border transition-all cursor-pointer flex flex-col justify-between min-h-[110px] relative group ${
+                className={`p-3.5 rounded-lg border transition-all cursor-pointer flex flex-col justify-between min-h-[110px] relative group ${
                   isSelected 
-                    ? 'bg-neutral-800 border-white shadow-[0_0_15px_rgba(255,255,255,0.15)]' 
-                    : 'bg-obsidian-200 border-neutral-800 hover:border-neutral-600'
+                    ? 'bg-sandal-100/90 border-sandal-400 ring-2 ring-sandal-300 shadow-2xs' 
+                    : 'bg-[#faf8f5] border-sandal-200 hover:border-sandal-400 hover:bg-white'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[9px] font-bold text-neutral-500">
+                  <span className="text-[9px] font-bold text-stone-500">
                     STAGE / 0{i + 1}
                   </span>
-                  <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${
-                    node.isEdge ? 'bg-emerald-950/60 text-tactical-green border border-emerald-900' : 'bg-neutral-800 text-neutral-400'
+                  <span className={`text-[8px] px-1.5 py-0.2 rounded font-bold ${
+                    node.isEdge ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-sandal-100 text-sandal-800 border border-sandal-200'
                   }`}>
                     {node.isEdge ? 'EDGE' : 'HQ SYNC'}
                   </span>
                 </div>
 
                 <div>
-                  <h4 className="font-bold text-xs text-white leading-tight mb-1 group-hover:text-neutral-200">
+                  <h4 className="font-bold text-xs text-stone-950 leading-tight mb-1">
                     {node.name}
                   </h4>
-                  <p className="text-[10px] text-neutral-400 leading-snug">
+                  <p className="text-[10px] text-stone-600 leading-snug">
                     {node.sub}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-neutral-800/80 text-[9px] text-neutral-500">
+                <div className="flex items-center justify-between pt-2 border-t border-sandal-200 text-[9px] text-stone-500 font-medium">
                   <span>LATENCY:</span>
-                  <span className="text-tactical-cyan font-bold">{node.latency}</span>
+                  <span className="text-sandal-800 font-bold">{node.latency}</span>
                 </div>
               </div>
             );
@@ -176,28 +176,28 @@ export function ArchitectureGraph() {
         </div>
 
         {/* Selected Node Technical Specs */}
-        <div className="p-4 rounded bg-obsidian-200 border border-neutral-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="p-4 rounded-lg bg-[#faf8f5] border border-sandal-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">
+            <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">
               COMPONENT SPECIFICATION: {activeNode.name}
             </span>
-            <div className="text-sm font-bold text-white">
-              ROLE: <span className="text-neutral-300 font-normal">{activeNode.role}</span>
+            <div className="text-sm font-bold text-stone-950">
+              ROLE: <span className="text-stone-700 font-normal">{activeNode.role}</span>
             </div>
-            <div className="text-xs text-neutral-400">
-              TECH STACK: <span className="text-tactical-cyan">{activeNode.tech}</span>
+            <div className="text-xs text-stone-600">
+              TECH STACK: <span className="text-sandal-700 font-semibold">{activeNode.tech}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-black/60 p-3 rounded border border-neutral-800 text-xs">
+          <div className="flex items-center gap-4 bg-white p-3 rounded-lg border border-sandal-200 text-xs shadow-2xs">
             <div className="flex flex-col">
-              <span className="text-[9px] text-neutral-500 uppercase">PROCESSING LATENCY</span>
-              <span className="text-sm font-bold text-tactical-green">{activeNode.latency}</span>
+              <span className="text-[9px] text-stone-500 font-semibold uppercase">PROCESSING LATENCY</span>
+              <span className="text-sm font-bold text-emerald-700">{activeNode.latency}</span>
             </div>
-            <div className="h-6 w-[1px] bg-neutral-800" />
+            <div className="h-6 w-[1px] bg-sandal-200" />
             <div className="flex flex-col">
-              <span className="text-[9px] text-neutral-500 uppercase">FAULT TOLERANCE</span>
-              <span className="text-sm font-bold text-white">LOCAL FALLBACK</span>
+              <span className="text-[9px] text-stone-500 font-semibold uppercase">FAULT TOLERANCE</span>
+              <span className="text-sm font-bold text-stone-900">LOCAL FALLBACK</span>
             </div>
           </div>
         </div>

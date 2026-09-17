@@ -102,18 +102,18 @@ export function ZoneEditor() {
   return (
     <div className="w-full flex flex-col xl:flex-row gap-4 font-mono select-none">
       {/* Zone Canvas Preview (Left 2/3) */}
-      <div className="flex-1 bg-black border border-neutral-800 rounded p-3 flex flex-col gap-3">
-        <div className="flex items-center justify-between pb-2 border-b border-neutral-800 text-xs">
+      <div className="flex-1 bg-white border border-sandal-200 rounded p-3 flex flex-col gap-3 shadow-2xs">
+        <div className="flex items-center justify-between pb-2 border-b border-sandal-200 text-xs">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-neutral-400" />
-            <span className="font-bold text-white tracking-wider">
+            <Shield className="w-4 h-4 text-sandal-600" />
+            <span className="font-bold text-stone-950 tracking-wider">
               VIRTUAL PERIMETER &amp; INTRUSION POLYGON STUDIO
             </span>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-neutral-500">CAMERA:</span>
+              <span className="text-[10px] text-stone-500">CAMERA:</span>
               <select
                 value={selectedCameraId}
                 onChange={(e) => {
@@ -125,7 +125,7 @@ export function ZoneEditor() {
                   setDrawnPoints([]);
                   setIsDrawing(false);
                 }}
-                className="bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-xs text-white focus:outline-none"
+                className="bg-sandal-50 border border-sandal-300 rounded px-2 py-1 text-xs text-stone-900 focus:outline-none"
               >
                 {cameras.map(c => (
                   <option key={c.id} value={c.id}>{c.id} — {c.name}</option>
@@ -284,12 +284,12 @@ export function ZoneEditor() {
       </div>
 
       {/* Zone Configuration Sidebar (Right 1/3) */}
-      <div className="w-full xl:w-96 bg-obsidian-200 border border-neutral-800 rounded p-4 flex flex-col gap-4">
-        <div className="flex items-center justify-between pb-2 border-b border-neutral-800 text-xs">
-          <span className="font-bold text-white uppercase tracking-wider">
+      <div className="w-full xl:w-96 bg-white border border-sandal-200 rounded p-4 flex flex-col gap-4 shadow-2xs">
+        <div className="flex items-center justify-between pb-2 border-b border-sandal-200 text-xs">
+          <span className="font-bold text-stone-950 uppercase tracking-wider">
             PERIMETER PARAMETERS
           </span>
-          <span className="px-1.5 py-0.5 rounded bg-neutral-800 text-[10px] text-neutral-400">
+          <span className="px-1.5 py-0.5 rounded bg-sandal-100 text-[10px] text-stone-700 font-bold">
             {activeCamera.activeZones.length} ACTIVE
           </span>
         </div>
@@ -305,8 +305,8 @@ export function ZoneEditor() {
               }}
               className={`px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
                 selectedZone?.id === z.id 
-                  ? 'bg-neutral-100 text-neutral-950 shadow' 
-                  : 'bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white'
+                  ? 'bg-stone-900 text-white shadow' 
+                  : 'bg-sandal-50 border border-sandal-200 text-stone-700 hover:text-stone-950 hover:bg-sandal-100'
               }`}
             >
               {z.name}
@@ -317,21 +317,21 @@ export function ZoneEditor() {
         {selectedZone ? (
           <div className="flex flex-col gap-4 text-xs">
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">ZONE NAME</span>
+              <span className="text-[10px] text-stone-500 uppercase font-semibold">ZONE NAME</span>
               <input
                 type="text"
                 value={selectedZone.name}
                 onChange={(e) => updateZone({ ...selectedZone, name: e.target.value })}
-                className="px-2.5 py-1.5 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-xs focus:border-neutral-600 focus:outline-none"
+                className="px-2.5 py-1.5 rounded bg-sandal-50 border border-sandal-300 text-stone-900 font-mono text-xs focus:border-sandal-500 focus:outline-none"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">ZONE CLASSIFICATION</span>
+              <span className="text-[10px] text-stone-500 uppercase font-semibold">ZONE CLASSIFICATION</span>
               <select
                 value={selectedZone.type}
                 onChange={(e) => updateZone({ ...selectedZone, type: e.target.value as ZoneType })}
-                className="px-2.5 py-1.5 rounded bg-neutral-900 border border-neutral-800 text-white font-mono text-xs focus:border-neutral-600 focus:outline-none"
+                className="px-2.5 py-1.5 rounded bg-sandal-50 border border-sandal-300 text-stone-900 font-mono text-xs focus:border-sandal-500 focus:outline-none"
               >
                 <option value="BORDER FENCE">BORDER FENCE</option>
                 <option value="RESTRICTED AREA">RESTRICTED AREA</option>

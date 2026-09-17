@@ -263,14 +263,14 @@ export function CommandPalette() {
   if (!commandPaletteOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-black/75 backdrop-blur-sm animate-fade-in select-none">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-black/50 backdrop-blur-xs animate-fade-in select-none">
       <div 
-        className="w-full max-w-2xl bg-obsidian-200 border border-neutral-700/80 rounded-lg shadow-2xl overflow-hidden flex flex-col"
+        className="w-full max-w-2xl bg-white border border-sandal-300 rounded-xl shadow-2xl overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-neutral-800 bg-obsidian-100">
-          <Search className="w-5 h-5 text-tactical-cyan shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-sandal-200 bg-[#faf8f5]">
+          <Search className="w-5 h-5 text-sandal-600 shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -281,23 +281,23 @@ export function CommandPalette() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search cameras, alerts, tracks, plates, zones, BOPs, or type an action..."
-            className="w-full bg-transparent text-white font-mono text-sm placeholder:text-neutral-500 focus:outline-none"
+            className="w-full bg-transparent text-stone-900 font-mono text-sm placeholder:text-stone-400 focus:outline-none"
           />
-          <kbd className="hidden sm:inline px-1.5 py-0.5 rounded bg-neutral-800 border border-neutral-700 font-mono text-[10px] text-neutral-400">
+          <kbd className="hidden sm:inline px-1.5 py-0.5 rounded bg-sandal-100 border border-sandal-300 font-mono text-[10px] text-stone-600 font-bold">
             ESC
           </kbd>
           <button 
             onClick={() => setCommandPaletteOpen(false)}
-            className="p-1 rounded text-neutral-400 hover:text-white"
+            className="p-1 rounded text-stone-400 hover:text-stone-800"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Search Results List */}
-        <div className="max-h-96 overflow-y-auto p-2 divide-y divide-neutral-800/40">
+        <div className="max-h-96 overflow-y-auto p-2 divide-y divide-sandal-100">
           {results.length === 0 ? (
-            <div className="py-12 text-center text-neutral-500 font-mono text-xs">
+            <div className="py-12 text-center text-stone-500 font-mono text-xs">
               NO ENTITIES OR ACTIONS MATCHING &ldquo;{query}&rdquo;
             </div>
           ) : (
@@ -313,33 +313,33 @@ export function CommandPalette() {
                     item.action();
                   }}
                   onMouseEnter={() => setSelectedIndex(index)}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded cursor-pointer transition-all ${
-                    isSelected ? 'bg-neutral-800/90 text-white' : 'text-neutral-300 hover:bg-neutral-900/60'
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all ${
+                    isSelected ? 'bg-sandal-100/90 text-stone-950 shadow-2xs' : 'text-stone-700 hover:bg-sandal-50'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`p-2 rounded ${
-                      isSelected ? 'bg-tactical-cyan/20 text-tactical-cyan' : 'bg-neutral-800/80 text-neutral-400'
+                    <div className={`p-2 rounded-md ${
+                      isSelected ? 'bg-sandal-200 text-sandal-900' : 'bg-sandal-50 text-stone-500'
                     }`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-semibold truncate text-neutral-100">
+                        <span className="font-mono text-xs font-semibold truncate text-stone-900">
                           {item.title}
                         </span>
-                        <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-neutral-900 border border-neutral-800 text-neutral-400 uppercase">
+                        <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-white border border-sandal-200 text-sandal-800 font-semibold uppercase">
                           {item.category}
                         </span>
                       </div>
-                      <p className="font-mono text-[11px] text-neutral-400 truncate mt-0.5">
+                      <p className="font-mono text-[11px] text-stone-500 truncate mt-0.5">
                         {item.subtitle}
                       </p>
                     </div>
                   </div>
 
                   {isSelected && (
-                    <CornerDownLeft className="w-4 h-4 text-neutral-400 shrink-0 ml-2" />
+                    <CornerDownLeft className="w-4 h-4 text-sandal-700 shrink-0 ml-2" />
                   )}
                 </div>
               );
@@ -348,13 +348,13 @@ export function CommandPalette() {
         </div>
 
         {/* Footer info strip */}
-        <div className="px-4 py-2 bg-obsidian-300 border-t border-neutral-800/80 flex items-center justify-between font-mono text-[10px] text-neutral-500">
+        <div className="px-4 py-2.5 bg-[#faf8f5] border-t border-sandal-200 flex items-center justify-between font-mono text-[10px] text-stone-500 font-medium">
           <div className="flex items-center gap-4">
             <span>↑↓ Navigate</span>
             <span>↵ Select</span>
             <span>ESC Close</span>
           </div>
-          <span className="text-tactical-cyan">IBVAP SIH26187 GLOBAL PALETTE</span>
+          <span className="text-sandal-700 font-bold">IBVAP SIH26187 GLOBAL PALETTE</span>
         </div>
       </div>
     </div>

@@ -23,35 +23,35 @@ export function MetricStrip() {
       value: `${metrics.activeCameras}/${metrics.totalCameras}`,
       sub: 'ALL CHANNELS UP',
       icon: Video,
-      color: 'text-tactical-green',
+      color: 'text-emerald-700',
     },
     {
       label: 'TRACKED PERSONS',
       value: `0${metrics.activePersons}`,
       sub: 'DEEPSORT ACTIVE',
       icon: Users,
-      color: 'text-neutral-200',
+      color: 'text-stone-900',
     },
     {
       label: 'VEHICLES IN SECTOR',
       value: `0${metrics.activeVehicles}`,
       sub: 'ANPR CHECKPOINT',
       icon: Car,
-      color: 'text-neutral-200',
+      color: 'text-stone-900',
     },
     {
       label: 'FACIAL MATCHES',
       value: `0${metrics.activeFaces}`,
       sub: 'SIMULATED DB',
       icon: ScanFace,
-      color: 'text-neutral-200',
+      color: 'text-stone-900',
     },
     {
       label: 'UNACKED ALERTS',
       value: unackedAlerts > 0 ? `0${unackedAlerts}` : '00',
       sub: unackedAlerts > 0 ? 'CRITICAL BREACH' : 'ALL CLEAR',
       icon: AlertTriangle,
-      color: unackedAlerts > 0 ? 'text-tactical-red animate-pulse' : 'text-neutral-400',
+      color: unackedAlerts > 0 ? 'text-red-700 font-bold' : 'text-stone-400',
     },
     {
       label: 'STREAM VELOCITY',
@@ -59,7 +59,7 @@ export function MetricStrip() {
       sub: 'TARGET: 30 FPS',
       unit: 'FPS',
       icon: Gauge,
-      color: 'text-tactical-cyan',
+      color: 'text-sandal-800',
     },
     {
       label: 'EDGE INFERENCE',
@@ -67,14 +67,14 @@ export function MetricStrip() {
       sub: '<100ms TARGET',
       unit: 'MS',
       icon: Cpu,
-      color: 'text-tactical-green',
+      color: 'text-emerald-700',
     },
     {
       label: 'NODE UPTIME',
       value: `${metrics.uptimePercentage}%`,
       sub: 'CONTINUOUS RUN',
       icon: ShieldCheck,
-      color: 'text-neutral-300',
+      color: 'text-stone-900',
     },
   ];
 
@@ -85,13 +85,13 @@ export function MetricStrip() {
         return (
           <div
             key={idx}
-            className="p-2.5 rounded bg-obsidian-200/90 border border-neutral-800/80 hover:border-neutral-700 flex flex-col justify-between transition-all group"
+            className="p-2.5 rounded bg-white border border-sandal-200 hover:border-sandal-400 flex flex-col justify-between transition-all group shadow-2xs"
           >
-            <div className="flex items-center justify-between text-neutral-500 mb-1">
-              <span className="font-mono text-[9px] font-semibold tracking-wider uppercase truncate">
+            <div className="flex items-center justify-between text-stone-500 mb-1">
+              <span className="font-mono text-[9px] font-semibold tracking-wider uppercase truncate text-stone-600">
                 {item.label}
               </span>
-              <Icon className="w-3 h-3 text-neutral-600 group-hover:text-neutral-400 transition-colors" />
+              <Icon className="w-3 h-3 text-sandal-500 group-hover:text-stone-900 transition-colors" />
             </div>
 
             <div className="flex items-baseline gap-1 my-0.5">
@@ -99,13 +99,13 @@ export function MetricStrip() {
                 {item.value}
               </span>
               {item.unit && (
-                <span className="font-mono text-[10px] text-neutral-500 font-semibold">
+                <span className="font-mono text-[10px] text-stone-500 font-semibold">
                   {item.unit}
                 </span>
               )}
             </div>
 
-            <div className="font-mono text-[9px] text-neutral-500 truncate pt-1 border-t border-neutral-800/40">
+            <div className="font-mono text-[9px] text-stone-500 truncate pt-1 border-t border-sandal-100">
               {item.sub}
             </div>
           </div>

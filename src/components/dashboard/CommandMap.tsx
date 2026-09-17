@@ -19,16 +19,16 @@ export function CommandMap() {
   const [selectedNode, setSelectedNode] = useState<BOPNode>(bopNodes[1]); // Default BOP-17
 
   return (
-    <div className="w-full h-full flex flex-col xl:flex-row gap-3 bg-black border border-neutral-800 rounded-sm p-3 relative overflow-hidden select-none">
+    <div className="w-full h-full flex flex-col xl:flex-row gap-3 bg-white border border-sandal-200 rounded-sm p-3 relative overflow-hidden select-none shadow-2xs">
       {/* Abstract Tactical Sector Map Grid */}
-      <div className="flex-1 relative min-h-[350px] bg-neutral-950 border border-neutral-900 rounded overflow-hidden flex items-center justify-center">
+      <div className="flex-1 relative min-h-[350px] bg-[#0c0e12] border border-sandal-300 rounded overflow-hidden flex items-center justify-center">
         {/* Background Radar Grid */}
-        <div className="absolute inset-0 bg-grid-tactical opacity-20 pointer-events-none" />
+        <div className="absolute inset-0 bg-grid-tactical opacity-25 pointer-events-none" />
         
         {/* Radar Concentric Circles */}
-        <div className="absolute w-[450px] h-[450px] rounded-full border border-neutral-800/40 pointer-events-none" />
-        <div className="absolute w-[300px] h-[300px] rounded-full border border-neutral-800/60 pointer-events-none" />
-        <div className="absolute w-[150px] h-[150px] rounded-full border border-neutral-800/80 pointer-events-none" />
+        <div className="absolute w-[450px] h-[450px] rounded-full border border-stone-800/60 pointer-events-none" />
+        <div className="absolute w-[300px] h-[300px] rounded-full border border-stone-800/80 pointer-events-none" />
+        <div className="absolute w-[150px] h-[150px] rounded-full border border-stone-700/80 pointer-events-none" />
         
         {/* Rotating Radar Sweep Line */}
         <div className="absolute w-[450px] h-[450px] rounded-full overflow-hidden pointer-events-none">
@@ -96,71 +96,71 @@ export function CommandMap() {
       </div>
 
       {/* Node Telemetry Inspector Drawer / Panel */}
-      <div className="w-full xl:w-80 bg-obsidian-200 border border-neutral-800 rounded p-3 flex flex-col justify-between font-mono text-xs">
+      <div className="w-full xl:w-80 bg-sandal-50/90 border border-sandal-200 rounded p-3 flex flex-col justify-between font-mono text-xs">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between pb-2 border-b border-neutral-800">
+          <div className="flex items-center justify-between pb-2 border-b border-sandal-200">
             <div>
-              <span className="text-[9px] text-neutral-500 font-bold uppercase tracking-widest block">
+              <span className="text-[9px] text-stone-500 font-bold uppercase tracking-widest block">
                 OUTPOST TELEMETRY
               </span>
-              <h3 className="text-sm font-bold text-white tracking-wide">
+              <h3 className="text-sm font-bold text-stone-950 tracking-wide">
                 {selectedNode.code} — {selectedNode.name}
               </h3>
             </div>
             <span className={`px-2 py-0.5 rounded text-[10px] font-bold border uppercase ${
               selectedNode.status === 'ALERT'
-                ? 'bg-red-950 border-red-800 text-tactical-red'
-                : 'bg-neutral-900 border-neutral-800 text-tactical-green'
+                ? 'bg-red-50 border-red-200 text-red-700'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-800'
             }`}>
               {selectedNode.status}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="p-2 rounded bg-neutral-900/70 border border-neutral-800 flex flex-col">
-              <span className="text-[9px] text-neutral-500 uppercase">CAMERAS</span>
-              <span className="text-sm font-bold text-white">{selectedNode.cameraCount} STREAMS</span>
+            <div className="p-2 rounded bg-white border border-sandal-200 flex flex-col shadow-2xs">
+              <span className="text-[9px] text-stone-500 uppercase">CAMERAS</span>
+              <span className="text-sm font-bold text-stone-900">{selectedNode.cameraCount} STREAMS</span>
             </div>
-            <div className="p-2 rounded bg-neutral-900/70 border border-neutral-800 flex flex-col">
-              <span className="text-[9px] text-neutral-500 uppercase">ACTIVE ALERTS</span>
-              <span className={`text-sm font-bold ${selectedNode.activeAlerts > 0 ? 'text-tactical-red' : 'text-neutral-300'}`}>
+            <div className="p-2 rounded bg-white border border-sandal-200 flex flex-col shadow-2xs">
+              <span className="text-[9px] text-stone-500 uppercase">ACTIVE ALERTS</span>
+              <span className={`text-sm font-bold ${selectedNode.activeAlerts > 0 ? 'text-red-700' : 'text-stone-700'}`}>
                 {selectedNode.activeAlerts} CRITICAL
               </span>
             </div>
-            <div className="p-2 rounded bg-neutral-900/70 border border-neutral-800 flex flex-col">
-              <span className="text-[9px] text-neutral-500 uppercase">EDGE LOAD</span>
-              <span className="text-sm font-bold text-tactical-cyan">{selectedNode.edgeLoad}%</span>
+            <div className="p-2 rounded bg-white border border-sandal-200 flex flex-col shadow-2xs">
+              <span className="text-[9px] text-stone-500 uppercase">EDGE LOAD</span>
+              <span className="text-sm font-bold text-sandal-700">{selectedNode.edgeLoad}%</span>
             </div>
-            <div className="p-2 rounded bg-neutral-900/70 border border-neutral-800 flex flex-col">
-              <span className="text-[9px] text-neutral-500 uppercase">HQ SYNC</span>
-              <span className="text-sm font-bold text-neutral-300">{selectedNode.lastSync}</span>
+            <div className="p-2 rounded bg-white border border-sandal-200 flex flex-col shadow-2xs">
+              <span className="text-[9px] text-stone-500 uppercase">HQ SYNC</span>
+              <span className="text-sm font-bold text-stone-800">{selectedNode.lastSync}</span>
             </div>
           </div>
 
-          <div className="p-2.5 rounded bg-neutral-900/40 border border-neutral-800 flex flex-col gap-1 text-[11px]">
-            <div className="flex justify-between text-neutral-400">
+          <div className="p-2.5 rounded bg-white border border-sandal-200 flex flex-col gap-1 text-[11px] shadow-2xs">
+            <div className="flex justify-between text-stone-600">
               <span>LATITUDE / LONGITUDE:</span>
-              <span className="text-neutral-200">{selectedNode.coordinates.lat}° N, {selectedNode.coordinates.lng}° E</span>
+              <span className="text-stone-900 font-medium">{selectedNode.coordinates.lat}° N, {selectedNode.coordinates.lng}° E</span>
             </div>
-            <div className="flex justify-between text-neutral-400">
+            <div className="flex justify-between text-stone-600">
               <span>SECTOR ZONE:</span>
-              <span className="text-neutral-200">{selectedNode.sector}</span>
+              <span className="text-stone-900 font-medium">{selectedNode.sector}</span>
             </div>
-            <div className="flex justify-between text-neutral-400">
+            <div className="flex justify-between text-stone-600">
               <span>THREAT PROFILE:</span>
               <span className={`font-bold ${
-                selectedNode.threatLevel === 'CRITICAL' ? 'text-tactical-red' :
-                selectedNode.threatLevel === 'ELEVATED' ? 'text-tactical-amber' :
-                'text-tactical-green'
+                selectedNode.threatLevel === 'CRITICAL' ? 'text-red-700' :
+                selectedNode.threatLevel === 'ELEVATED' ? 'text-amber-800' :
+                'text-emerald-700'
               }`}>{selectedNode.threatLevel}</span>
             </div>
           </div>
         </div>
 
-        <div className="pt-3 border-t border-neutral-800">
-          <div className="flex items-center justify-between text-[10px] text-neutral-500">
+        <div className="pt-3 border-t border-sandal-200">
+          <div className="flex items-center justify-between text-[10px] text-stone-500">
             <span>EDGE NODE HEARTBEAT</span>
-            <span className="text-tactical-green">NOMINAL 100%</span>
+            <span className="text-emerald-700 font-bold">NOMINAL 100%</span>
           </div>
         </div>
       </div>

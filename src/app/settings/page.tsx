@@ -29,23 +29,23 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-obsidian text-neutral-100 font-sans">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#faf8f5] text-stone-900 font-sans">
       <CommandTopBar />
 
       <div className="flex flex-1 overflow-hidden">
         <CommandSidebar />
 
-        <main className="flex-1 flex flex-col overflow-y-auto p-4 gap-4 font-mono">
-          <div className="flex items-center justify-between pb-3 border-b border-neutral-800 text-xs">
+        <main className="flex-1 flex flex-col overflow-y-auto p-4 gap-4 font-mono bg-[#faf8f5]">
+          <div className="flex items-center justify-between pb-3 border-b border-sandal-200 text-xs bg-white p-4 rounded-lg shadow-2xs">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded bg-neutral-900 border border-neutral-800 text-neutral-300">
+              <div className="p-2 rounded-lg bg-sandal-50 border border-sandal-200 text-sandal-700">
                 <Settings className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-base font-bold text-white tracking-wider">
+                <h1 className="text-base font-bold text-stone-950 tracking-wider">
                   EDGE NODE PARAMETERS &amp; COMPUTER VISION CONFIGURATION
                 </h1>
-                <p className="text-[10px] text-neutral-500">
+                <p className="text-[10px] text-stone-500 font-semibold uppercase">
                   LOCAL ACCELERATOR RUNTIME, INFERENCE THRESHOLDS &amp; SENSITIVITIES
                 </p>
               </div>
@@ -53,15 +53,15 @@ export default function SettingsPage() {
 
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 px-4 py-2 rounded bg-neutral-100 text-neutral-950 font-bold hover:bg-white text-xs transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-stone-900 text-white font-bold hover:bg-stone-800 text-xs transition-all active:scale-95 shadow-2xs"
             >
-              {savedSuccess ? <Check className="w-4 h-4 text-emerald-600" /> : <Save className="w-4 h-4" />}
+              {savedSuccess ? <Check className="w-4 h-4 text-emerald-400" /> : <Save className="w-4 h-4 text-sandal-300" />}
               <span>{savedSuccess ? 'PERSISTED TO EDGE NODE' : 'SAVE CONFIGURATION'}</span>
             </button>
           </div>
 
           {/* Grouped Technical Tabs */}
-          <div className="flex items-center gap-2 border-b border-neutral-800 pb-2 text-xs">
+          <div className="flex items-center gap-2 border-b border-sandal-200 pb-2 text-xs">
             {[
               { id: 'THRESHOLDS', label: 'DETECTION THRESHOLDS', icon: Sliders },
               { id: 'MODELS', label: 'MODEL DEPLOYMENT', icon: Cpu },
@@ -74,11 +74,11 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors ${
-                    isActive ? 'bg-neutral-800 text-white font-bold border border-neutral-700' : 'text-neutral-400 hover:text-neutral-200'
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-colors font-semibold ${
+                    isActive ? 'bg-sandal-100 text-sandal-900 font-bold border border-sandal-300 shadow-2xs' : 'text-stone-600 hover:text-stone-900 hover:bg-sandal-50'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-3.5 h-3.5 text-sandal-600" />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -86,13 +86,13 @@ export default function SettingsPage() {
           </div>
 
           {/* Tab Content */}
-          <div className="flex-1 bg-obsidian-200 border border-neutral-800 rounded p-5 flex flex-col gap-6 text-xs max-w-4xl">
+          <div className="flex-1 bg-white border border-sandal-200 rounded-lg p-5 flex flex-col gap-6 text-xs max-w-4xl shadow-2xs">
             {activeTab === 'THRESHOLDS' && (
               <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-1.5 p-3 rounded bg-neutral-900 border border-neutral-800">
+                <div className="flex flex-col gap-1.5 p-3.5 rounded-lg bg-[#faf8f5] border border-sandal-200">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-white uppercase">HUMAN DETECTION CONFIDENCE THRESHOLD</span>
-                    <span className="text-tactical-green font-bold">{(personConfidence * 100).toFixed(0)}%</span>
+                    <span className="font-bold text-stone-900 uppercase">HUMAN DETECTION CONFIDENCE THRESHOLD</span>
+                    <span className="text-emerald-800 font-bold">{(personConfidence * 100).toFixed(0)}%</span>
                   </div>
                   <input
                     type="range"
@@ -101,17 +101,17 @@ export default function SettingsPage() {
                     step="0.01"
                     value={personConfidence}
                     onChange={(e) => setPersonConfidence(parseFloat(e.target.value))}
-                    className="accent-tactical-green cursor-pointer mt-1"
+                    className="accent-sandal-600 cursor-pointer mt-1"
                   />
-                  <span className="text-[10px] text-neutral-500">
+                  <span className="text-[10px] text-stone-500 font-medium">
                     Target Human Detection Target: &gt;85%. Suppresses false triggers from shrub movement and desert debris.
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-1.5 p-3 rounded bg-neutral-900 border border-neutral-800">
+                <div className="flex flex-col gap-1.5 p-3.5 rounded-lg bg-[#faf8f5] border border-sandal-200">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-white uppercase">VEHICLE CLASSIFICATION THRESHOLD</span>
-                    <span className="text-tactical-cyan font-bold">{(vehicleConfidence * 100).toFixed(0)}%</span>
+                    <span className="font-bold text-stone-900 uppercase">VEHICLE CLASSIFICATION THRESHOLD</span>
+                    <span className="text-sandal-700 font-bold">{(vehicleConfidence * 100).toFixed(0)}%</span>
                   </div>
                   <input
                     type="range"
@@ -120,17 +120,17 @@ export default function SettingsPage() {
                     step="0.01"
                     value={vehicleConfidence}
                     onChange={(e) => setVehicleConfidence(parseFloat(e.target.value))}
-                    className="accent-tactical-cyan cursor-pointer mt-1"
+                    className="accent-sandal-600 cursor-pointer mt-1"
                   />
-                  <span className="text-[10px] text-neutral-500">
+                  <span className="text-[10px] text-stone-500 font-medium">
                     Filters car, truck, and bus classifications for Checkpoint Alpha ANPR gate.
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-1.5 p-3 rounded bg-neutral-900 border border-neutral-800">
+                <div className="flex flex-col gap-1.5 p-3.5 rounded-lg bg-[#faf8f5] border border-sandal-200">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-white uppercase">LOITERING STATIONARY DWELL TIMER</span>
-                    <span className="text-tactical-amber font-bold">{loiterThresholdSec} SECONDS</span>
+                    <span className="font-bold text-stone-900 uppercase">LOITERING STATIONARY DWELL TIMER</span>
+                    <span className="text-amber-800 font-bold">{loiterThresholdSec} SECONDS</span>
                   </div>
                   <input
                     type="range"
@@ -139,9 +139,9 @@ export default function SettingsPage() {
                     step="5"
                     value={loiterThresholdSec}
                     onChange={(e) => setLoiterThresholdSec(parseInt(e.target.value))}
-                    className="accent-tactical-amber cursor-pointer mt-1"
+                    className="accent-amber-600 cursor-pointer mt-1"
                   />
-                  <span className="text-[10px] text-neutral-500">
+                  <span className="text-[10px] text-stone-500 font-medium">
                     Triggers behavioral anomaly alert when tracked object persists within restricted polygon buffer.
                   </span>
                 </div>
@@ -156,12 +156,12 @@ export default function SettingsPage() {
                   { name: 'LPRNet-v3 Indian ANPR', precision: 'INT8', latency: '18ms', status: 'ACTIVE' },
                   { name: 'ArcFace-Biometric-512', precision: 'FP16', latency: '35ms', status: 'ACTIVE' }
                 ].map((m, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded bg-neutral-900 border border-neutral-800">
+                  <div key={i} className="flex items-center justify-between p-3.5 rounded-lg bg-[#faf8f5] border border-sandal-200">
                     <div>
-                      <div className="font-bold text-white text-xs">{m.name}</div>
-                      <div className="text-[10px] text-neutral-400">PRECISION: {m.precision} // RUNTIME: {m.latency}</div>
+                      <div className="font-bold text-stone-900 text-xs">{m.name}</div>
+                      <div className="text-[10px] text-stone-500 font-semibold">PRECISION: {m.precision} // RUNTIME: {m.latency}</div>
                     </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-950 text-tactical-green border border-emerald-900 text-[10px] font-bold">
+                    <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
                       {m.status}
                     </span>
                   </div>
@@ -171,32 +171,32 @@ export default function SettingsPage() {
 
             {activeTab === 'NOTIFICATIONS' && (
               <div className="flex flex-col gap-3">
-                <div className="p-3 rounded bg-neutral-900 border border-neutral-800 flex items-center justify-between">
+                <div className="p-3.5 rounded-lg bg-[#faf8f5] border border-sandal-200 flex items-center justify-between">
                   <div>
-                    <div className="font-bold text-white">TACTICAL AUDIO CHIRP</div>
-                    <div className="text-[10px] text-neutral-400">Synthesize alert frequency chime upon CRITICAL perimeter breach</div>
+                    <div className="font-bold text-stone-900">TACTICAL AUDIO CHIRP</div>
+                    <div className="text-[10px] text-stone-500">Synthesize alert frequency chime upon CRITICAL perimeter breach</div>
                   </div>
-                  <span className="text-tactical-green font-bold">ENABLED</span>
+                  <span className="text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">ENABLED</span>
                 </div>
 
-                <div className="p-3 rounded bg-neutral-900 border border-neutral-800 flex items-center justify-between">
+                <div className="p-3.5 rounded-lg bg-[#faf8f5] border border-sandal-200 flex items-center justify-between">
                   <div>
-                    <div className="font-bold text-white">REDIS STREAM EVENT BUS</div>
-                    <div className="text-[10px] text-neutral-400">Local sub-millisecond pub/sub broadcast on 127.0.0.1:6379</div>
+                    <div className="font-bold text-stone-900">REDIS STREAM EVENT BUS</div>
+                    <div className="text-[10px] text-stone-500">Local sub-millisecond pub/sub broadcast on 127.0.0.1:6379</div>
                   </div>
-                  <span className="text-tactical-green font-bold">CONNECTED</span>
+                  <span className="text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">CONNECTED</span>
                 </div>
               </div>
             )}
 
             {activeTab === 'SYSTEM' && (
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] text-neutral-500 font-bold uppercase">EDGE NODE AUDIT LOG</span>
-                <div className="p-3 rounded bg-black border border-neutral-900 text-[11px] text-neutral-400 flex flex-col gap-1 font-mono">
-                  <div>[14:32:48] HEARTBEAT: BOP-17 edge node healthy. GPU load: 68%. VRAM: 3.8 / 8.0 GB.</div>
-                  <div>[14:30:45] INFERENCE: CAM-01 tripwire breach detected for PERSON-042. Alert published.</div>
-                  <div>[14:28:12] ANPR: Checkpoint Alpha processed TN01AB1234. Confidence 88.4%.</div>
-                  <div>[14:20:00] TIME_SYNC: Edge hardware RTC calibrated to IST (NTP local).</div>
+                <span className="text-[10px] text-stone-600 font-bold uppercase">EDGE NODE AUDIT LOG</span>
+                <div className="p-3.5 rounded-lg bg-[#1c1917] border border-stone-800 text-[11px] text-stone-300 flex flex-col gap-1.5 font-mono shadow-md">
+                  <div><span className="text-sandal-400">[14:32:48]</span> HEARTBEAT: BOP-17 edge node healthy. GPU load: 68%. VRAM: 3.8 / 8.0 GB.</div>
+                  <div><span className="text-sandal-400">[14:30:45]</span> INFERENCE: CAM-01 tripwire breach detected for PERSON-042. Alert published.</div>
+                  <div><span className="text-sandal-400">[14:28:12]</span> ANPR: Checkpoint Alpha processed TN01AB1234. Confidence 88.4%.</div>
+                  <div><span className="text-sandal-400">[14:20:00]</span> TIME_SYNC: Edge hardware RTC calibrated to IST (NTP local).</div>
                 </div>
               </div>
             )}

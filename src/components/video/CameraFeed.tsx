@@ -64,7 +64,7 @@ export function CameraFeed({
       } ${isExpanded ? 'h-full w-full' : 'aspect-video w-full rounded-sm'}`}
     >
       {/* Background Camera Image Frame with Zoom transform */}
-      <div className="relative w-full h-full flex-1 overflow-hidden bg-neutral-950 select-none">
+      <div className="relative w-full h-full flex-1 overflow-hidden bg-black select-none">
         <div 
           className="w-full h-full transition-transform duration-300 origin-center"
           style={{ transform: `scale(${zoomLevel})` }}

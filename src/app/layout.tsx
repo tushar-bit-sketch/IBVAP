@@ -15,8 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-obsidian text-neutral-100 min-h-screen antialiased selection:bg-neutral-800 selection:text-white">
+    <html lang="en" className="light">
+      <body className="bg-obsidian text-stone-900 min-h-screen antialiased selection:bg-sandal-200 selection:text-stone-900">
         <SimulationProvider>
           {children}
           <CommandPalette />

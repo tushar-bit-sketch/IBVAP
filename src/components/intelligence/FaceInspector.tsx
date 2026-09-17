@@ -114,15 +114,15 @@ export function FaceInspector() {
   return (
     <div className="w-full flex flex-col xl:flex-row gap-4 font-mono select-none">
       {/* Left List of Synthetic Biometric Records */}
-      <div className="w-full xl:w-96 bg-obsidian-200 border border-neutral-800 rounded p-3 flex flex-col gap-3">
-        <div className="flex items-center justify-between pb-2 border-b border-neutral-800">
+      <div className="w-full xl:w-96 bg-white border border-sandal-200 rounded p-3 flex flex-col gap-3 shadow-2xs">
+        <div className="flex items-center justify-between pb-2 border-b border-sandal-200">
           <div className="flex items-center gap-2">
-            <Fingerprint className="w-4 h-4 text-neutral-400" />
-            <span className="text-xs font-bold text-white tracking-wider">
+            <Fingerprint className="w-4 h-4 text-sandal-600" />
+            <span className="text-xs font-bold text-stone-950 tracking-wider">
               BIOMETRIC MATCH AUDIT
             </span>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-800/80 text-tactical-amber">
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 font-bold">
             SYNTHETIC
           </span>
         </div>
@@ -138,32 +138,34 @@ export function FaceInspector() {
                 onClick={() => setSelectedFace(face)}
                 className={`p-2.5 rounded border transition-all cursor-pointer flex items-center gap-3 ${
                   isSelected 
-                    ? 'bg-neutral-800/90 border-neutral-600' 
-                    : 'bg-neutral-900/60 border-neutral-800/80 hover:bg-neutral-800/40'
+                    ? 'bg-stone-900 text-white shadow' 
+                    : 'bg-sandal-50/70 border-sandal-200 hover:bg-sandal-100/70 text-stone-900'
                 }`}
               >
                 {/* Mini Wireframe Icon Avatar */}
-                <div className="w-11 h-11 rounded border border-neutral-700 shrink-0 bg-black flex items-center justify-center text-tactical-cyan">
-                  <Fingerprint className="w-6 h-6 opacity-75" />
+                <div className={`w-11 h-11 rounded border shrink-0 bg-stone-900 flex items-center justify-center text-sandal-400 ${
+                  isSelected ? 'border-stone-700' : 'border-sandal-300'
+                }`}>
+                  <Fingerprint className="w-6 h-6 opacity-85" />
                 </div>
 
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-white text-xs truncate">
+                    <span className={`font-bold text-xs truncate ${isSelected ? 'text-white' : 'text-stone-950'}`}>
                       {face.databaseId}
                     </span>
                     <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold ${
                       isWatchlist 
-                        ? 'bg-red-950 text-tactical-red border border-red-900' 
-                        : 'bg-neutral-800 text-tactical-green'
+                        ? 'bg-red-500 text-white' 
+                        : isSelected ? 'bg-stone-800 text-stone-300' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                     }`}>
                       {isWatchlist ? 'MATCH' : 'CLEAR'}
                     </span>
                   </div>
-                  <div className="text-[10px] text-neutral-400">
+                  <div className={`text-[10px] ${isSelected ? 'text-stone-300' : 'text-stone-600'}`}>
                     SIMILARITY: {(face.matchScore * 100).toFixed(1)}%
                   </div>
-                  <div className="text-[9px] text-neutral-500 truncate">
+                  <div className={`text-[9px] truncate ${isSelected ? 'text-stone-400' : 'text-stone-500'}`}>
                     {face.cameraId} • {face.timestamp}
                   </div>
                 </div>
@@ -173,8 +175,8 @@ export function FaceInspector() {
         </div>
 
         {/* Prototype Credibility Disclaimer */}
-        <div className="p-2.5 rounded bg-black/50 border border-neutral-800 text-[10px] text-neutral-400 flex items-start gap-2">
-          <Info className="w-3.5 h-3.5 text-neutral-400 shrink-0 mt-0.5" />
+        <div className="p-2.5 rounded bg-sandal-50 border border-sandal-200 text-[10px] text-stone-600 flex items-start gap-2 shadow-2xs">
+          <Info className="w-3.5 h-3.5 text-sandal-700 shrink-0 mt-0.5" />
           <span>
             Facial recognition engine computes 512-dimensional synthetic vector embeddings. No real personal identifiable data is retained.
           </span>
@@ -182,26 +184,26 @@ export function FaceInspector() {
       </div>
 
       {/* Right Biometric Match Comparison Studio */}
-      <div className="flex-1 bg-black border border-neutral-800 rounded p-4 flex flex-col gap-4">
-        <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+      <div className="flex-1 bg-white border border-sandal-200 rounded p-4 flex flex-col gap-4 shadow-2xs">
+        <div className="flex items-center justify-between pb-3 border-b border-sandal-200">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">
+              <span className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">
                 FACENET / ARCFACE BIOMETRIC RE-ID
               </span>
-              <span className="px-1.5 py-0.2 rounded bg-amber-950/60 border border-amber-900 text-tactical-amber text-[9px] font-bold">
+              <span className="px-1.5 py-0.2 rounded bg-amber-50 border border-amber-200 text-amber-800 text-[9px] font-bold">
                 SYNTHETIC PROTOTYPE
               </span>
             </div>
-            <h3 className="text-base font-bold text-white tracking-wider">
+            <h3 className="text-base font-bold text-stone-950 tracking-wider">
               IDENTITY PROFILE: {selectedFace.databaseId}
             </h3>
           </div>
 
           <div className={`px-2.5 py-1 rounded text-[10px] font-bold border uppercase ${
             selectedFace.watchlistStatus === 'WATCHLIST MATCH'
-              ? 'bg-red-950 text-tactical-red border-red-800 animate-pulse'
-              : 'bg-emerald-950 text-emerald-400 border-emerald-800'
+              ? 'bg-red-50 text-red-700 border-red-200 animate-pulse'
+              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
           }`}>
             {selectedFace.watchlistStatus}
           </div>
@@ -210,59 +212,59 @@ export function FaceInspector() {
         {/* Pure Synthetic Biometric Mesh Comparison Split */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] text-neutral-500 uppercase tracking-wider font-semibold">
+            <span className="text-[10px] text-stone-500 uppercase tracking-wider font-semibold">
               FIELD PROBE VECTOR (CCTV STREAM)
             </span>
             <BiometricWireframe
               id={selectedFace.databaseId}
               label="CCTV PROBE"
-              color="#06b6d4"
+              color="#0284c7"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] text-neutral-500 uppercase tracking-wider font-semibold">
+            <span className="text-[10px] text-stone-500 uppercase tracking-wider font-semibold">
               WATCHLIST VECTOR TEMPLATE (GALLERY)
             </span>
             <BiometricWireframe
               id={selectedFace.databaseId}
               label="GALLERY REF"
-              color={selectedFace.watchlistStatus === 'WATCHLIST MATCH' ? '#ef4444' : '#10b981'}
+              color={selectedFace.watchlistStatus === 'WATCHLIST MATCH' ? '#b91c1c' : '#15803d'}
             />
           </div>
         </div>
 
         {/* Match Telemetry Bar */}
-        <div className="p-3 rounded bg-obsidian-200 border border-neutral-800 flex flex-col gap-2">
+        <div className="p-3 rounded bg-sandal-50 border border-sandal-200 flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-neutral-400">COSINE VECTOR SIMILARITY:</span>
+            <span className="text-stone-600 font-medium">COSINE VECTOR SIMILARITY:</span>
             <span className={`font-bold text-sm ${
-              selectedFace.watchlistStatus === 'WATCHLIST MATCH' ? 'text-tactical-red' : 'text-tactical-green'
+              selectedFace.watchlistStatus === 'WATCHLIST MATCH' ? 'text-red-700' : 'text-emerald-700'
             }`}>
               {(selectedFace.matchScore * 100).toFixed(2)}%
             </span>
           </div>
-          <div className="w-full bg-neutral-800 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-sandal-200 h-2 rounded-full overflow-hidden">
             <div 
               className={`h-full rounded-full transition-all duration-500 ${
-                selectedFace.watchlistStatus === 'WATCHLIST MATCH' ? 'bg-tactical-red' : 'bg-tactical-green'
+                selectedFace.watchlistStatus === 'WATCHLIST MATCH' ? 'bg-red-600' : 'bg-emerald-600'
               }`}
               style={{ width: `${selectedFace.matchScore * 100}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-[10px] text-neutral-500 pt-1">
+          <div className="flex items-center justify-between text-[10px] text-stone-500 pt-1">
             <span>THRESHOLD FOR WATCHLIST ALERT: 85.0%</span>
-            <span>RESULT: {selectedFace.watchlistStatus === 'WATCHLIST MATCH' ? 'CONFIRMED MATCH EXCEEDS THRESHOLD' : 'MATCH CLEARED'}</span>
+            <span className="font-semibold">RESULT: {selectedFace.watchlistStatus === 'WATCHLIST MATCH' ? 'CONFIRMED MATCH EXCEEDS THRESHOLD' : 'MATCH CLEARED'}</span>
           </div>
         </div>
 
         {/* 512-dim Feature Vector Hex Dump */}
-        <div className="p-2.5 rounded bg-neutral-950 border border-neutral-900 text-[10px] text-neutral-500 flex flex-col gap-1 font-mono">
-          <div className="flex items-center justify-between text-neutral-400 font-bold">
+        <div className="p-2.5 rounded bg-sandal-50 border border-sandal-200 text-[10px] text-stone-600 flex flex-col gap-1 font-mono">
+          <div className="flex items-center justify-between text-stone-700 font-bold">
             <span>FEATURE EMBEDDING VECTOR HASH (SHA-256):</span>
-            <span className="text-tactical-cyan">512 FLOAT32 TENSORS</span>
+            <span className="text-sandal-700 font-bold">512 FLOAT32 TENSORS</span>
           </div>
-          <code className="text-neutral-400 bg-black/60 p-2 rounded border border-neutral-900 break-all text-[9px]">
+          <code className="text-stone-700 bg-white p-2 rounded border border-sandal-200 break-all text-[9px]">
             [0.0842, -0.2190, 0.4491, 0.8123, -0.0094, 0.1284, -0.7421, 0.3201, 0.5891, -0.1984, 0.3012, -0.4901, ...]
           </code>
         </div>
