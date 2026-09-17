@@ -35,100 +35,100 @@ export function CommandSidebar() {
 
   const navLinks = [
     {
-      label: 'COMMAND MATRIX',
+      label: 'Command center',
       href: '/command-center',
       icon: LayoutGrid,
       badge: null,
     },
     {
-      label: 'CAMERAS & PTZ',
+      label: 'Cameras',
       href: '/cameras',
       icon: Video,
       badge: `${onlineCamerasCount}/4`,
     },
     {
-      label: 'INCIDENT TRIAGE',
+      label: 'Incidents',
       href: '/incidents',
       icon: LifeBuoy,
-      badge: 'LIFECYCLE',
-      badgeColor: 'bg-neutral-800 text-neutral-300 border border-neutral-700',
+      badge: 'Lifecycle',
+      badgeColor: 'bg-neutral-800 text-neutral-400 border border-neutral-700',
     },
     {
-      label: 'ALERTS & BREACHES',
+      label: 'Alerts',
       href: '/alerts',
       icon: AlertTriangle,
       badge: activeAlertsCount > 0 ? activeAlertsCount : null,
-      badgeColor: 'bg-red-950 text-tactical-red border border-red-900',
+      badgeColor: 'bg-red-950 text-red-400 border border-red-900',
     },
     {
-      label: 'AI DETECTIONS',
+      label: 'Detections',
       href: '/detections',
       icon: Scan,
       badge: null,
     },
     {
-      label: 'OBJECT TRACKING',
+      label: 'Tracking',
       href: '/tracking',
       icon: Route,
       badge: 'ReID',
     },
     {
-      label: 'ANPR / VEHICLES',
+      label: 'ANPR / Vehicles',
       href: '/anpr',
       icon: Car,
       badge: null,
     },
     {
-      label: 'FACE INTEL (SIM)',
+      label: 'Face recognition [sim]',
       href: '/faces',
       icon: UserCheck,
       badge: '512D',
     },
     {
-      label: 'VIRTUAL ZONES',
+      label: 'Virtual zones',
       href: '/zones',
       icon: Shield,
       badge: null,
     },
     {
-      label: 'EDGE NODES',
+      label: 'Edge nodes',
       href: '/edge-nodes',
       icon: Cpu,
-      badge: networkMode === 'OFFLINE' ? `${pendingSyncCount} SYNC` : 'ONLINE',
-      badgeColor: networkMode === 'OFFLINE' ? 'bg-amber-950 text-tactical-amber border border-amber-900' : 'bg-green-950 text-tactical-green border border-green-900',
+      badge: networkMode === 'OFFLINE' ? `${pendingSyncCount} sync` : 'Online',
+      badgeColor: networkMode === 'OFFLINE' ? 'bg-amber-950 text-amber-400 border border-amber-900' : 'bg-green-950 text-emerald-500 border border-green-900',
     },
     {
-      label: 'DIAGNOSTICS',
+      label: 'System diagnostics',
       href: '/system',
       icon: Activity,
       badge: null,
     },
     {
-      label: 'FORENSIC EVIDENCE',
+      label: 'Evidence',
       href: '/evidence',
       icon: FolderArchive,
       badge: 'SHA-256',
     },
     {
-      label: 'SECURITY REPORTS',
+      label: 'Reports',
       href: '/reports',
       icon: FileCheck2,
       badge: null,
     },
     {
-      label: 'AUDIT LEDGER',
+      label: 'Audit log',
       href: '/audit',
       icon: ScrollText,
       badge: null,
     },
     {
-      label: 'ANALYTICS',
+      label: 'Analytics',
       href: '/analytics',
       icon: BarChart3,
       badge: null,
     },
     {
-      label: 'EDGE SETTINGS',
+      label: 'Settings',
       href: '/settings',
       icon: Settings,
       badge: null,
@@ -145,8 +145,8 @@ export function CommandSidebar() {
       <div className="flex flex-col py-3 overflow-y-auto max-h-screen">
         <div className="px-3 pb-2 mb-2 border-b border-neutral-800/60 flex items-center justify-between">
           {!collapsed && (
-            <span className="font-mono text-[10px] text-neutral-500 uppercase tracking-widest font-semibold">
-              TACTICAL SUBSYSTEMS
+            <span className="font-mono text-[10px] text-neutral-600 uppercase tracking-widest font-medium">
+              Navigation
             </span>
           )}
           <button
@@ -170,11 +170,11 @@ export function CommandSidebar() {
                 title={collapsed ? item.label : undefined}
                 className={`flex items-center gap-3 px-2.5 py-1.5 rounded font-mono text-xs transition-all relative group ${
                   isActive
-                    ? 'bg-neutral-800/90 text-white font-semibold border-l-2 border-tactical-cyan shadow-inner'
+                    ? 'bg-neutral-800/90 text-white font-semibold border-l-2 border-neutral-300 shadow-inner'
                     : 'text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800/40'
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-tactical-cyan' : 'text-neutral-500 group-hover:text-neutral-300'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-neutral-500 group-hover:text-neutral-300'}`} />
 
                 {!collapsed && (
                   <>
@@ -201,15 +201,15 @@ export function CommandSidebar() {
       {!collapsed && (
         <div className="p-3 border-t border-neutral-800/60 bg-obsidian-200/50">
           <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 mb-1">
-            <span>DAEMON STATUS</span>
-            <span className="text-tactical-green">OPTIMAL</span>
+            <span>System status</span>
+            <span className="text-emerald-400">Nominal</span>
           </div>
           <div className="w-full bg-neutral-800 rounded-full h-1 overflow-hidden">
-            <div className="bg-tactical-cyan h-full w-[88%]" />
+            <div className="bg-neutral-400 h-full w-[88%]" />
           </div>
           <div className="flex items-center justify-between text-[9px] font-mono text-neutral-500 mt-1">
-            <span>YOLOv8x / DeepSORT</span>
-            <span>28.8 FPS</span>
+            <span>YOLOv8x · DeepSORT</span>
+            <span>28.8 fps <span className="text-neutral-600">[sim]</span></span>
           </div>
         </div>
       )}

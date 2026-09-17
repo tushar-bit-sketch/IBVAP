@@ -57,32 +57,32 @@ export default function CommandCenterPage() {
                     onClick={() => setViewMode('MATRIX')}
                     className={`flex items-center gap-1.5 px-3 py-1 rounded transition-all ${
                       viewMode === 'MATRIX' 
-                        ? 'bg-neutral-100 text-neutral-950 font-bold shadow' 
+                        ? 'bg-neutral-100 text-neutral-950 font-semibold shadow-sm' 
                         : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
                     }`}
                   >
                     <LayoutGrid className="w-3.5 h-3.5" />
-                    <span>CAMERA MATRIX (4 FEEDS)</span>
+                    <span>Camera matrix (4 feeds)</span>
                   </button>
 
                   <button
                     onClick={() => setViewMode('MAP')}
                     className={`flex items-center gap-1.5 px-3 py-1 rounded transition-all ${
                       viewMode === 'MAP' 
-                        ? 'bg-neutral-100 text-neutral-950 font-bold shadow' 
+                        ? 'bg-neutral-100 text-neutral-950 font-semibold shadow-sm' 
                         : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
                     }`}
                   >
                     <MapPin className="w-3.5 h-3.5" />
-                    <span>TACTICAL RADAR MAP</span>
+                    <span>Tactical radar map</span>
                   </button>
                 </div>
 
                 <div className="hidden sm:flex items-center gap-3 text-[10px] text-neutral-400">
                   <span className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-tactical-green" /> 4 CHANNELS ONLINE
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> 4 channels online
                   </span>
-                  <span>SYNC: EDGE DIRECT</span>
+                  <span>Sync: edge direct</span>
                 </div>
               </div>
 
@@ -100,9 +100,9 @@ export default function CommandCenterPage() {
             <div className="lg:col-span-4 xl:col-span-3 flex flex-col h-full bg-obsidian-200 border border-neutral-800 rounded-sm overflow-hidden select-none font-mono">
               <div className="p-2.5 border-b border-neutral-800 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-tactical-red" />
-                  <span className="text-xs font-bold text-white tracking-wider">
-                    ALERT FEED ({alerts.length})
+                  <AlertTriangle className="w-4 h-4 text-red-400" />
+                  <span className="text-xs font-semibold text-white tracking-wider">
+                    Alert feed ({alerts.length})
                   </span>
                 </div>
 
@@ -116,7 +116,7 @@ export default function CommandCenterPage() {
                         severityFilter === f ? 'bg-neutral-700 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'
                       }`}
                     >
-                      {f}
+                      {f === 'ALL' ? 'All' : 'Critical'}
                     </button>
                   ))}
                 </div>
@@ -139,8 +139,8 @@ export default function CommandCenterPage() {
 
               {/* Bottom Quick Status */}
               <div className="p-2 border-t border-neutral-800 bg-black/40 text-[10px] text-neutral-500 flex items-center justify-between">
-                <span>CLICK ANY ALERT FOR FORENSIC DRAWER</span>
-                <span className="text-tactical-green">REAL-TIME</span>
+                <span>Select alert to inspect evidence dossier</span>
+                <span className="text-emerald-400">Live</span>
               </div>
             </div>
           </div>

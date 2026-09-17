@@ -62,7 +62,7 @@ export function CommandTopBar() {
         {/* Left: Product & Outpost telemetry */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-6 h-6 rounded bg-neutral-900 border border-neutral-700 flex items-center justify-center text-white text-xs font-mono font-bold group-hover:border-tactical-cyan transition-colors">
+            <div className="w-6 h-6 rounded bg-neutral-900 border border-neutral-700 flex items-center justify-center text-white text-xs font-mono font-bold group-hover:border-neutral-500 transition-colors">
               IB
             </div>
             <div className="flex flex-col">
@@ -78,11 +78,8 @@ export function CommandTopBar() {
           <div className="h-4 w-[1px] bg-neutral-800" />
 
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-bold text-neutral-200 hidden lg:inline">
-              COMMAND MATRIX
-            </span>
-            <span className="px-2 py-0.5 rounded bg-neutral-800/80 border border-neutral-700/60 font-mono text-[10px] text-neutral-300">
-              BOP-17 / NORTH
+            <span className="px-2 py-0.5 rounded-sm bg-neutral-900 border border-neutral-800 font-mono text-[10px] text-neutral-300">
+              BOP-17 · Sector North
             </span>
           </div>
 
@@ -90,19 +87,19 @@ export function CommandTopBar() {
           <div className="relative">
             <button
               onClick={() => setNetworkMenuOpen(!networkMenuOpen)}
-              className={`flex items-center gap-1.5 px-2 py-0.5 rounded border font-mono text-[10px] tracking-wider transition-colors ${
+              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-sm border font-mono text-[10px] tracking-wider transition-colors ${
                 networkMode === 'ONLINE'
-                  ? 'border-green-900/60 bg-green-950/30 text-tactical-green hover:bg-green-900/40'
+                  ? 'border-green-900/60 bg-green-950/30 text-emerald-400 hover:bg-green-900/40'
                   : networkMode === 'DEGRADED'
-                  ? 'border-amber-900/60 bg-amber-950/30 text-tactical-amber hover:bg-amber-900/40'
-                  : 'border-red-900/80 bg-red-950/50 text-tactical-red hover:bg-red-900/60 animate-pulse'
+                  ? 'border-amber-900/60 bg-amber-950/30 text-amber-400 hover:bg-amber-900/40'
+                  : 'border-red-900/80 bg-red-950/50 text-red-400 hover:bg-red-900/60'
               }`}
             >
               {networkMode === 'OFFLINE' ? <WifiOff className="w-3 h-3" /> : <Wifi className="w-3 h-3" />}
               <span>{networkMode}</span>
               {pendingSyncCount > 0 && (
                 <span className="px-1 rounded bg-neutral-900 border border-neutral-700 text-[9px] text-neutral-300">
-                  {isSyncing ? 'SYNCING...' : `${pendingSyncCount} QUEUED`}
+                  {isSyncing ? 'Syncing...' : `${pendingSyncCount} queued`}
                 </span>
               )}
               <ChevronDown className="w-2.5 h-2.5 opacity-60" />
@@ -111,7 +108,7 @@ export function CommandTopBar() {
             {networkMenuOpen && (
               <div className="absolute top-full left-0 mt-1 w-48 bg-obsidian-200 border border-neutral-700 rounded shadow-xl py-1 z-50 font-mono text-xs">
                 <div className="px-3 py-1 text-[9px] text-neutral-500 uppercase border-b border-neutral-800">
-                  Select Edge Uplink Mode
+                  Select edge uplink mode
                 </div>
                 {(['ONLINE', 'DEGRADED', 'OFFLINE'] as NetworkMode[]).map(mode => (
                   <button
@@ -125,7 +122,7 @@ export function CommandTopBar() {
                     }`}
                   >
                     <span>{mode}</span>
-                    {networkMode === mode && <CheckCircle2 className="w-3 h-3 text-tactical-green" />}
+                    {networkMode === mode && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
                   </button>
                 ))}
               </div>
@@ -142,9 +139,9 @@ export function CommandTopBar() {
               setCommandPaletteOpen(true);
             }}
             className="hidden sm:flex items-center gap-2 px-3 py-1 rounded bg-neutral-900/90 border border-neutral-800 text-neutral-400 hover:border-neutral-700 hover:text-white transition-all font-mono text-xs"
-            title="Global Search & Quick Actions (Ctrl+K or /)"
+            title="Global search and quick actions (Ctrl+K or /)"
           >
-            <Search className="w-3.5 h-3.5 text-tactical-cyan" />
+            <Search className="w-3.5 h-3.5 text-neutral-400" />
             <span className="hidden md:inline text-[11px]">Search system...</span>
             <kbd className="px-1.5 py-0.2 rounded bg-neutral-800 border border-neutral-700 text-[9px] text-neutral-400">
               Ctrl+K
@@ -153,32 +150,32 @@ export function CommandTopBar() {
 
           {/* Dedicated START JURY DEMO Action */}
           {juryDemoActive ? (
-            <div className="flex items-center gap-1.5 bg-red-950/70 border border-red-700 px-2.5 py-1 rounded shadow-lg animate-pulse-subtle">
-              <span className="w-2 h-2 rounded-full bg-tactical-red animate-ping" />
+            <div className="flex items-center gap-1.5 bg-red-950/70 border border-red-700 px-2.5 py-1 rounded shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
               <span className="font-mono text-[10px] font-bold text-red-300">
-                JURY DEMO ({juryDemoStep}/12)
+                Jury demo ({juryDemoStep}/12)
               </span>
               <button
                 onClick={nextJuryStep}
                 className="ml-1 px-1.5 py-0.5 rounded bg-red-900 text-white font-mono text-[9px] hover:bg-red-800"
               >
-                NEXT STEP
+                Next
               </button>
               <button
                 onClick={stopJuryDemo}
                 className="px-1 py-0.5 text-neutral-400 hover:text-white font-mono text-[9px]"
               >
-                STOP
+                Stop
               </button>
             </div>
           ) : (
             <button
               onClick={startJuryDemo}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-tactical-cyan/15 border border-tactical-cyan/50 text-tactical-cyan hover:bg-tactical-cyan/25 transition-all font-mono text-[10px] font-bold tracking-wider shadow-sm"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-neutral-800 border border-neutral-700 text-neutral-200 hover:bg-neutral-700 hover:text-white transition-all font-mono text-[10px] font-medium tracking-wider shadow-sm"
               title="Execute 12-Step Automated Presentation Sequence"
             >
-              <Zap className="w-3.5 h-3.5" />
-              <span>START JURY DEMO</span>
+              <Zap className="w-3 h-3 text-amber-400" />
+              <span>Jury demo</span>
             </button>
           )}
 
@@ -188,10 +185,10 @@ export function CommandTopBar() {
               playTacticalSound('click');
               setScenarioModalOpen(true);
             }}
-            className="flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-800 border border-neutral-700 text-neutral-200 hover:bg-neutral-700 hover:text-white transition-all font-mono text-[10px] tracking-wider"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-sm bg-neutral-900 border border-neutral-800 text-neutral-300 hover:bg-neutral-800 hover:text-white transition-all font-mono text-[10px]"
             title="Open 14 Coordinated Operational Scenarios"
           >
-            <span>SCENARIOS</span>
+            <span>Scenarios</span>
           </button>
         </div>
 
@@ -225,7 +222,7 @@ export function CommandTopBar() {
                     }`}
                   >
                     <span>{role}</span>
-                    {currentRole === role && <CheckCircle2 className="w-3 h-3 text-tactical-cyan" />}
+                    {currentRole === role && <CheckCircle2 className="w-3 h-3 text-white" />}
                   </button>
                 ))}
               </div>
@@ -235,11 +232,11 @@ export function CommandTopBar() {
           {/* Breach Simulator Button */}
           <button
             onClick={triggerSimulatedAlert}
-            className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded bg-red-950/40 border border-red-900/60 text-red-300 hover:bg-red-900/40 hover:text-white transition-all font-mono text-[10px] tracking-wider"
+            className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-sm bg-red-950/40 border border-red-900/60 text-red-300 hover:bg-red-900/40 hover:text-white transition-all font-mono text-[10px] tracking-wider"
             title="Simulate Real-time Critical Perimeter Breach"
           >
-            <ShieldAlert className="w-3.5 h-3.5 text-tactical-red" />
-            <span className="hidden xl:inline">BREACH</span>
+            <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
+            <span className="hidden xl:inline">Breach [sim]</span>
           </button>
 
           {/* Reset System to Nominal */}
@@ -259,7 +256,7 @@ export function CommandTopBar() {
                 ? 'border-neutral-700 bg-neutral-800 text-neutral-200' 
                 : 'border-neutral-800 text-neutral-500 hover:text-neutral-300'
             }`}
-            title={soundAlerts ? 'Tactical Audio Active' : 'Audio Muted'}
+            title={soundAlerts ? 'Audio alerts active' : 'Audio muted'}
           >
             {soundAlerts ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
           </button>
@@ -267,7 +264,7 @@ export function CommandTopBar() {
           {/* Live Clock Strip */}
           <div className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded bg-black/60 border border-neutral-800">
             <Clock className="w-3 h-3 text-neutral-400" />
-            <span className="font-mono text-xs font-bold text-neutral-200 tracking-wider">
+            <span className="font-mono text-xs font-medium text-neutral-200 tracking-wider">
               {currentTimeStr}
             </span>
           </div>
@@ -276,12 +273,12 @@ export function CommandTopBar() {
 
       {/* Active Jury Demo Progress Banner */}
       {juryDemoActive && juryDemoCurrent && (
-        <div className="bg-gradient-to-r from-red-950 via-obsidian-200 to-red-950 border-b border-red-800/80 px-4 py-2 flex items-center justify-between text-xs font-mono text-neutral-200 z-20 shrink-0">
+        <div className="bg-red-950/90 border-b border-red-900 px-4 py-2 flex items-center justify-between text-xs font-mono text-neutral-200 z-20 shrink-0">
           <div className="flex items-center gap-3">
-            <span className="px-2 py-0.5 rounded bg-red-900 text-white font-bold text-[10px]">
-              JURY STAGE {juryDemoCurrent.stepIndex}/12
+            <span className="px-2 py-0.5 rounded bg-red-900 text-white font-semibold text-[10px]">
+              Stage {juryDemoCurrent.stepIndex}/12
             </span>
-            <span className="font-bold text-white tracking-wider">
+            <span className="font-semibold text-white tracking-wider">
               {juryDemoCurrent.title}
             </span>
             <span className="text-neutral-400 hidden sm:inline">

@@ -53,7 +53,6 @@ module.exports = {
         "radar-sweep": "radar 4s linear infinite",
         "pulse-subtle": "pulseSubtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "scanline": "scanline 8s linear infinite",
-        "glitch": "glitch 0.2s ease-in-out infinite",
       },
       keyframes: {
         radar: {

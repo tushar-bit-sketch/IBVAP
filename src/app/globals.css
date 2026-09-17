@@ -49,7 +49,7 @@ body {
 .scanline-layer {
   background: linear-gradient(
     rgba(18, 16, 16, 0) 50%, 
-    rgba(0, 0, 0, 0.25) 50%
+    rgba(0, 0, 0, 0.12) 50%
   ), linear-gradient(
     90deg,
     rgba(255, 0, 0, 0.02),
@@ -58,6 +58,14 @@ body {
   );
   background-size: 100% 2px, 3px 100%;
   pointer-events: none;
+}
+
+/* Operational demo telemetry label */
+.demo-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #d97706;
+  letter-spacing: 0.05em;
 }
 
 /* Tactical Corner Brackets */
