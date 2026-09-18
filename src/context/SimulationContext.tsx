@@ -21,7 +21,8 @@ import {
   UserSession,
   NetworkMode,
   IncidentStatus,
-  ThreatScoreBreakdown
+  ThreatScoreBreakdown,
+  VideoSyncEvent
 } from '../types';
 import { 
   INITIAL_CAMERAS, 
@@ -35,7 +36,8 @@ import {
   INITIAL_EDGE_NODE,
   OPERATIONAL_SCENARIOS,
   JURY_DEMO_STEPS,
-  INITIAL_AUDIT_LOG
+  INITIAL_AUDIT_LOG,
+  VIDEO_TIMELINE_EVENTS
 } from '../data/mockData';
 import { DEMO_USERS } from '../services/authService';
 
@@ -118,6 +120,11 @@ interface SimulationContextType {
   
   // Audio Feedback
   playTacticalSound: (type: 'click' | 'alert' | 'breach' | 'ack') => void;
+
+  // Video-Synchronized Engine
+  cameraPlaybackTimes: Record<string, number>;
+  reportCameraPlaybackTime: (cameraId: string, currentTime: number) => void;
+  timelineEvents: VideoSyncEvent[];
 }
 
 const SimulationContext = createContext<SimulationContextType | undefined>(undefined);
@@ -162,6 +169,46 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   const [juryDemoActive, setJuryDemoActive] = useState(false);
   const [juryDemoStep, setJuryDemoStep] = useState<number>(1);
   const juryTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Video-Synchronized Timeline State
+  const [cameraPlaybackTimes, setCameraPlaybackTimes] = useState<Record<string, number>>({
+    'CAM-01': 0,
+    'CAM-02': 0,
+    'CAM-03': 0,
+    'CAM-04': 0,
+  });
+
+  const reportCameraPlaybackTime = useCallback((cameraId: string, currentTime: number) => {
+    setCameraPlaybackTimes(prev => {
+      if (Math.abs((prev[cameraId] || 0) - currentTime) < 0.15) return prev;
+      return { ...prev, [cameraId]: currentTime };
+    });
+
+    setCameras(prevCams => prevCams.map(cam => {
+      if (cam.id === cameraId) {
+        if (cameraId === 'CAM-01') {
+          const t = currentTime % 10.01;
+          const progress = t / 10.01;
+          const updatedDetections = cam.currentDetections.map(det => {
+            if (det.trackingId === 'PERSON-042') {
+              const smoothX = +(40 + progress * 8).toFixed(2);
+              const smoothY = +(36 + Math.sin(progress * Math.PI) * 4).toFixed(2);
+              return {
+                ...det,
+                bbox: { ...det.bbox, x: smoothX, y: smoothY },
+                speedKmh: +(3.8 + progress * 0.8).toFixed(1),
+                loiterSeconds: Math.floor(t)
+              };
+            }
+            return det;
+          });
+          return { ...cam, playbackTime: currentTime, currentDetections: updatedDetections };
+        }
+        return { ...cam, playbackTime: currentTime };
+      }
+      return cam;
+    }));
+  }, []);
 
   // Tactical Audio Synthesizer
   const playTacticalSound = useCallback((type: 'click' | 'alert' | 'breach' | 'ack') => {
@@ -272,27 +319,27 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         lastSyncTimestamp: new Date().toLocaleTimeString('en-US', { hour12: false }) + ' IST'
       }));
 
-      // Coordinated spatial motion for tracked objects
+      // Coordinated spatial motion for tracked objects synchronized with video timeline
       setCameras(prevCams => prevCams.map(cam => {
         if (cam.id === 'CAM-01') {
+          const t = (cam.playbackTime || 0) % 10.01;
+          const progress = t / 10.01;
           const updatedDetections = cam.currentDetections.map(det => {
             if (det.trackingId === 'PERSON-042') {
-              const deltaX = (Math.random() - 0.48) * 0.4;
-              const deltaY = (Math.random() - 0.49) * 0.25;
-              const newX = Math.min(68, Math.max(30, det.bbox.x + deltaX));
-              const newY = Math.min(55, Math.max(32, det.bbox.y + deltaY));
+              const smoothX = +(40 + progress * 8).toFixed(2);
+              const smoothY = +(36 + Math.sin(progress * Math.PI) * 4).toFixed(2);
               return {
                 ...det,
-                bbox: { ...det.bbox, x: +newX.toFixed(2), y: +newY.toFixed(2) },
-                speedKmh: +(4.0 + Math.random() * 0.6).toFixed(1),
-                loiterSeconds: (det.loiterSeconds || 60) + 1
+                bbox: { ...det.bbox, x: smoothX, y: smoothY },
+                speedKmh: +(3.8 + progress * 0.8).toFixed(1),
+                loiterSeconds: Math.floor(t)
               };
             }
             return det;
           });
           return { ...cam, currentDetections: updatedDetections, fps: jitterFps };
         }
-        return cam;
+        return { ...cam, fps: jitterFps };
       }));
     }, 2000 / playbackSpeed);
 
@@ -732,6 +779,9 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         switchRole,
         logAuditAction,
         playTacticalSound,
+        cameraPlaybackTimes,
+        reportCameraPlaybackTime,
+        timelineEvents: VIDEO_TIMELINE_EVENTS,
       }}
     >
       {children}

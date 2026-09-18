@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Detection, Zone } from '@/types';
 import { useSimulation } from '@/context/SimulationContext';
 import { 
@@ -15,7 +15,8 @@ import {
   ZoomIn, 
   ZoomOut,
   Compass,
-  Sliders
+  Sliders,
+  AlertTriangle
 } from 'lucide-react';
 
 interface CameraFeedProps {
@@ -31,14 +32,33 @@ export function CameraFeed({
   onToggleExpand,
   showControls = true,
 }: CameraFeedProps) {
-  const { playTacticalSound } = useSimulation();
+  const { playTacticalSound, reportCameraPlaybackTime } = useSimulation();
   const [showBoxes, setShowBoxes] = useState(true);
   const [showZones, setShowZones] = useState(true);
   const [showTrajectory, setShowTrajectory] = useState(true);
   const [filterMode, setFilterMode] = useState<'RAW' | 'IR_SIM' | 'NIGHT_VISION'>('RAW');
   const [zoomLevel, setZoomLevel] = useState<number>(1.0);
+  const [hasVideoError, setHasVideoError] = useState<boolean>(false);
+  const [playbackTime, setPlaybackTime] = useState<number>(0);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const videoSrc = camera.videoUrl || camera.feedUrl;
+  const isVideo = Boolean(videoSrc && (videoSrc.endsWith('.mp4') || videoSrc.includes('.mp4') || camera.videoUrl));
 
   const isTriggered = camera.activeZones.some(z => z.status === 'TRIGGERED');
+
+  // Ensure autoplay starts cleanly across all browser security models
+  useEffect(() => {
+    if (isVideo && videoRef.current && !hasVideoError) {
+      videoRef.current.muted = true;
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn(`[IBVAP Feed ${camera.id}] Video autoplay awaiting interaction:`, err.message);
+        });
+      }
+    }
+  }, [isVideo, videoSrc, hasVideoError, camera.id]);
 
   const handleZoom = (delta: number) => {
     playTacticalSound('click');
@@ -63,18 +83,58 @@ export function CameraFeed({
           : 'border-neutral-800/80 hover:border-neutral-600'
       } ${isExpanded ? 'h-full w-full' : 'aspect-video w-full rounded-sm'}`}
     >
-      {/* Background Camera Image Frame with Zoom transform */}
+      {/* Background Camera Video/Image Frame with Zoom transform */}
       <div className="relative w-full h-full flex-1 overflow-hidden bg-black select-none">
-        <div 
-          className="w-full h-full transition-transform duration-300 origin-center"
-          style={{ transform: `scale(${zoomLevel})` }}
-        >
-          <img
-            src={camera.feedUrl}
-            alt={camera.name}
-            className={`w-full h-full object-cover pointer-events-none transition-all duration-500 ${getFilterStyle()}`}
-          />
-        </div>
+        {hasVideoError ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-stone-950/95 border border-stone-800 z-10 select-text">
+            <AlertTriangle className="w-8 h-8 text-amber-500 mb-2" />
+            <span className="font-mono text-xs font-bold text-amber-400 tracking-wider">
+              VIDEO SOURCE UNAVAILABLE
+            </span>
+            <span className="font-mono text-[10px] text-stone-400 mt-1 max-w-xs break-all">
+              {videoSrc}
+            </span>
+            <span className="font-mono text-[9px] text-stone-500 mt-2 px-2 py-0.5 bg-stone-900 border border-stone-800 rounded">
+              {camera.id} · {camera.sector}
+            </span>
+          </div>
+        ) : (
+          <div 
+            className="w-full h-full transition-transform duration-300 origin-center"
+            style={{ transform: `scale(${zoomLevel})` }}
+          >
+            {isVideo ? (
+              <video
+                ref={videoRef}
+                src={videoSrc}
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls={false}
+                preload="auto"
+                onTimeUpdate={(e) => {
+                  const curr = e.currentTarget.currentTime;
+                  setPlaybackTime(curr);
+                  if (reportCameraPlaybackTime) {
+                    reportCameraPlaybackTime(camera.id, curr);
+                  }
+                }}
+                onError={(e) => {
+                  console.error(`[IBVAP Feed] VIDEO SOURCE UNAVAILABLE for ${camera.id} at ${videoSrc}:`, e);
+                  setHasVideoError(true);
+                }}
+                className={`w-full h-full object-cover pointer-events-none transition-all duration-500 ${getFilterStyle()}`}
+              />
+            ) : (
+              <img
+                src={camera.feedUrl}
+                alt={camera.name}
+                className={`w-full h-full object-cover pointer-events-none transition-all duration-500 ${getFilterStyle()}`}
+              />
+            )}
+          </div>
+        )}
 
         {/* Tactical Scanlines & Vignette */}
         <div className="absolute inset-0 scanline-layer opacity-45 pointer-events-none" />
@@ -198,6 +258,9 @@ export function CameraFeed({
           <span className="font-mono text-[10px] text-neutral-300 drop-shadow hidden sm:inline">
             {camera.name}
           </span>
+          <span className="px-1.5 py-0.5 bg-stone-900/90 border border-stone-700/80 rounded font-mono text-[9px] text-stone-300">
+            RECORDED FEED
+          </span>
           {isTriggered && (
             <span className="px-1.5 py-0.5 bg-red-950/90 border border-red-700 rounded font-mono text-[9px] font-bold text-red-300 animate-pulse">
               PERIMETER BREACH
@@ -207,6 +270,9 @@ export function CameraFeed({
 
         {/* HUD Top Right: Telemetry & Optics Specs */}
         <div className="absolute top-2 right-2 flex items-center gap-1.5 pointer-events-none font-mono text-[9px] text-neutral-300">
+          <span className="px-1.5 py-0.5 bg-black/80 border border-neutral-800 rounded text-amber-400 font-mono font-bold">
+            REC {playbackTime.toFixed(1)}s
+          </span>
           <span className="px-1.5 py-0.5 bg-black/80 border border-neutral-800 rounded">
             {camera.resolution}
           </span>

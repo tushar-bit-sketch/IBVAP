@@ -14,7 +14,8 @@ import {
   JuryDemoStep,
   AuditLogEntry,
   SystemDiagnostics,
-  ReportItem
+  ReportItem,
+  VideoSyncEvent
 } from '../types';
 
 // ============================================================================
@@ -33,7 +34,12 @@ export const INITIAL_CAMERAS: Camera[] = [
     status: 'ONLINE',
     aiStatus: 'OPTIMAL',
     feedType: 'OPTICAL',
-    feedUrl: 'https://images.unsplash.com/photo-1566847936715-5e147ef9caec?auto=format&fit=crop&w=1200&q=80',
+    feedUrl: '/simulations/cam-01-footage.mp4',
+    videoUrl: '/simulations/cam-01-footage.mp4',
+    sourceType: 'RECORDED_DEMO',
+    sourceLabel: 'RECORDED FEED // PERIMETER FOOTAGE',
+    playbackTime: 0,
+    duration: 10.01,
     model: 'YOLOv8x + DeepSORT v2.1',
     lastIncident: '14:30:45 IST',
     ptzSupport: true,
@@ -133,7 +139,12 @@ export const INITIAL_CAMERAS: Camera[] = [
     status: 'ONLINE',
     aiStatus: 'OPTIMAL',
     feedType: 'THERMAL_IR',
-    feedUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1200&q=80',
+    feedUrl: '/simulations/cam-02-footage.mp4',
+    videoUrl: '/simulations/cam-02-footage.mp4',
+    sourceType: 'RECORDED_DEMO',
+    sourceLabel: 'RECORDED FEED // THERMAL IR FOOTAGE',
+    playbackTime: 0,
+    duration: 10.01,
     model: 'YOLOv8-Thermal-v4 + FilterCore',
     lastIncident: '13:45:10 IST',
     ptzSupport: true,
@@ -199,7 +210,12 @@ export const INITIAL_CAMERAS: Camera[] = [
     status: 'ONLINE',
     aiStatus: 'OPTIMAL',
     feedType: 'ANPR_MACRO',
-    feedUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80',
+    feedUrl: '/simulations/cam-03-footage.mp4',
+    videoUrl: '/simulations/cam-03-footage.mp4',
+    sourceType: 'RECORDED_DEMO',
+    sourceLabel: 'RECORDED FEED // CHECKPOINT VEHICLE FOOTAGE',
+    playbackTime: 0,
+    duration: 10.01,
     model: 'YOLOv8-Vehicle + LPRNet-v3 + FaceNet',
     lastIncident: '14:28:12 IST',
     ptzSupport: false,
@@ -276,7 +292,12 @@ export const INITIAL_CAMERAS: Camera[] = [
     status: 'ONLINE',
     aiStatus: 'OPTIMAL',
     feedType: 'PERIMETER_WIDE',
-    feedUrl: 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=1200&q=80',
+    feedUrl: '/simulations/cam-04-footage.mp4',
+    videoUrl: '/simulations/cam-04-footage.mp4',
+    sourceType: 'RECORDED_DEMO',
+    sourceLabel: 'RECORDED FEED // WIDE PERIMETER FOOTAGE',
+    playbackTime: 0,
+    duration: 10.01,
     model: 'YOLOv8x + AnomalyNet v1.9',
     lastIncident: '14:15:33 IST',
     ptzSupport: true,
@@ -331,6 +352,132 @@ export const INITIAL_CAMERAS: Camera[] = [
         }
       }
     ]
+  }
+];
+
+// ============================================================================
+// 1b. VIDEO SYNCHRONIZATION TIMELINE EVENTS
+// ============================================================================
+
+export const VIDEO_TIMELINE_EVENTS: VideoSyncEvent[] = [
+  // CAM-01: Perimeter Fence North (10.01s surveillance loop)
+  {
+    id: 'evt-cam01-01',
+    cameraId: 'CAM-01',
+    timestampSec: 1.2,
+    eventType: 'PERSON_DETECTED',
+    payload: { trackingId: 'PERSON-042', class: 'person', confidence: 0.92, bbox: { x: 42, y: 38, w: 12, h: 28 }, zone: 'BORDER FENCE 01' }
+  },
+  {
+    id: 'evt-cam01-02',
+    cameraId: 'CAM-01',
+    timestampSec: 3.5,
+    eventType: 'PERSON_TRACKED',
+    payload: { trackingId: 'PERSON-042', class: 'person', confidence: 0.94, bbox: { x: 44, y: 40, w: 12, h: 28 }, speedKmh: 4.2 }
+  },
+  {
+    id: 'evt-cam01-03',
+    cameraId: 'CAM-01',
+    timestampSec: 5.8,
+    eventType: 'ZONE_ENTRY',
+    payload: { trackingId: 'PERSON-042', class: 'person', zone: 'BORDER FENCE 01', confidence: 0.96 }
+  },
+  {
+    id: 'evt-cam01-04',
+    cameraId: 'CAM-01',
+    timestampSec: 7.0,
+    eventType: 'PERIMETER_BREACH',
+    payload: { trackingId: 'PERSON-042', class: 'person', zone: 'BORDER FENCE 01', severity: 'CRITICAL', details: 'Tripwire crossed on Northern barrier' }
+  },
+  {
+    id: 'evt-cam01-05',
+    cameraId: 'CAM-01',
+    timestampSec: 7.2,
+    eventType: 'ALERT_TRIGGERED',
+    payload: { trackingId: 'PERSON-042', zone: 'BORDER FENCE 01', severity: 'CRITICAL', details: 'Automated perimeter breach alert generated' }
+  },
+  {
+    id: 'evt-cam01-06',
+    cameraId: 'CAM-01',
+    timestampSec: 7.5,
+    eventType: 'INCIDENT_CREATED',
+    payload: { trackingId: 'PERSON-042', zone: 'BORDER FENCE 01', severity: 'CRITICAL', details: 'Incident INC-8821 opened for interdiction team' }
+  },
+
+  // CAM-02: Thermal Multi-Person Feed (10.01s loop)
+  {
+    id: 'evt-cam02-01',
+    cameraId: 'CAM-02',
+    timestampSec: 0.8,
+    eventType: 'PERSON_DETECTED',
+    payload: { trackingId: 'PERSON-088', class: 'person', confidence: 0.89, bbox: { x: 55, y: 44, w: 8, h: 20 }, zone: 'EAST PERIMETER' }
+  },
+  {
+    id: 'evt-cam02-02',
+    cameraId: 'CAM-02',
+    timestampSec: 3.8,
+    eventType: 'PERSON_TRACKED',
+    payload: { trackingId: 'PERSON-088', class: 'person', confidence: 0.91, bbox: { x: 57, y: 46, w: 8, h: 20 }, speedKmh: 1.8 }
+  },
+  {
+    id: 'evt-cam02-03',
+    cameraId: 'CAM-02',
+    timestampSec: 6.9,
+    eventType: 'ZONE_ENTRY',
+    payload: { trackingId: 'PERSON-088', class: 'person', zone: 'EAST PERIMETER', confidence: 0.93 }
+  },
+
+  // CAM-03: Checkpoint Alpha Road / Vehicle Feed (10.01s loop)
+  {
+    id: 'evt-cam03-01',
+    cameraId: 'CAM-03',
+    timestampSec: 1.0,
+    eventType: 'VEHICLE_DETECTED',
+    payload: { trackingId: 'VEHICLE-031', class: 'truck', confidence: 0.91, bbox: { x: 28, y: 40, w: 42, h: 42 }, speedKmh: 18.5 }
+  },
+  {
+    id: 'evt-cam03-02',
+    cameraId: 'CAM-03',
+    timestampSec: 3.2,
+    eventType: 'VEHICLE_TRACKED',
+    payload: { trackingId: 'VEHICLE-031', class: 'truck', confidence: 0.93, bbox: { x: 30, y: 42, w: 42, h: 42 }, speedKmh: 16.0 }
+  },
+  {
+    id: 'evt-cam03-03',
+    cameraId: 'CAM-03',
+    timestampSec: 5.1,
+    eventType: 'ANPR_DETECTED',
+    payload: { trackingId: 'VEHICLE-031', plateNumber: 'PB-08-BT-4921', confidence: 0.97, details: 'Heavy commercial carrier recognized' }
+  },
+  {
+    id: 'evt-cam03-04',
+    cameraId: 'CAM-03',
+    timestampSec: 7.8,
+    eventType: 'ZONE_ENTRY',
+    payload: { trackingId: 'VEHICLE-031', zone: 'INSPECTION BAY', confidence: 0.95 }
+  },
+
+  // CAM-04: Wide Perimeter / Patrol Corridor (10.01s loop)
+  {
+    id: 'evt-cam04-01',
+    cameraId: 'CAM-04',
+    timestampSec: 1.4,
+    eventType: 'PERSON_DETECTED',
+    payload: { trackingId: 'PERSON-099', class: 'person', confidence: 0.88, bbox: { x: 38, y: 50, w: 8, h: 20 }, zone: 'PATROL RUNWAY' }
+  },
+  {
+    id: 'evt-cam04-02',
+    cameraId: 'CAM-04',
+    timestampSec: 4.6,
+    eventType: 'PERSON_TRACKED',
+    payload: { trackingId: 'PERSON-099', class: 'person', confidence: 0.90, bbox: { x: 40, y: 52, w: 8, h: 20 }, speedKmh: 3.4 }
+  },
+  {
+    id: 'evt-cam04-03',
+    cameraId: 'CAM-04',
+    timestampSec: 7.6,
+    eventType: 'ZONE_ENTRY',
+    payload: { trackingId: 'PERSON-099', zone: 'PATROL RUNWAY', confidence: 0.92 }
   }
 ];
 

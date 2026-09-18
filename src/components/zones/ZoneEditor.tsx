@@ -160,11 +160,22 @@ export function ZoneEditor() {
             isDrawing ? 'cursor-crosshair border-amber-500/80 shadow-[0_0_20px_rgba(245,158,11,0.15)]' : 'border-neutral-800'
           }`}
         >
-          <img
-            src={activeCamera.feedUrl}
-            alt={activeCamera.name}
-            className="w-full h-full object-cover filter contrast-110 grayscale-[40%]"
-          />
+          {activeCamera.feedUrl?.endsWith('.mp4') || activeCamera.videoUrl ? (
+            <video
+              src={activeCamera.videoUrl || activeCamera.feedUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover filter contrast-110 grayscale-[40%]"
+            />
+          ) : (
+            <img
+              src={activeCamera.feedUrl}
+              alt={activeCamera.name}
+              className="w-full h-full object-cover filter contrast-110 grayscale-[40%]"
+            />
+          )}
           <div className="absolute inset-0 scanline-layer opacity-40 pointer-events-none" />
 
           {/* SVG Polygonal Zones */}

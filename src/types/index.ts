@@ -271,6 +271,11 @@ export interface Camera {
   aiStatus: AIModelStatus;
   feedType: CameraFeedType;
   feedUrl: string;
+  videoUrl?: string;
+  sourceType?: 'RECORDED_DEMO' | 'LIVE_RTSP' | 'SIMULATION';
+  sourceLabel?: string;
+  playbackTime?: number;
+  duration?: number;
   model: string;
   currentDetections: Detection[];
   activeZones: Zone[];
@@ -278,6 +283,39 @@ export interface Camera {
   streamHealth: StreamHealthMetrics;
   ptzSupport: boolean;
   edgeNodeId: string;
+}
+
+// ----------------------------------------------------------------------------
+// 9b. Video-Synchronized Event Domain
+// ----------------------------------------------------------------------------
+
+export type VideoSimulationEventType = 
+  | 'PERSON_DETECTED'
+  | 'PERSON_TRACKED'
+  | 'VEHICLE_DETECTED'
+  | 'VEHICLE_TRACKED'
+  | 'ZONE_ENTRY'
+  | 'PERIMETER_BREACH'
+  | 'ANPR_DETECTED'
+  | 'INCIDENT_CREATED'
+  | 'ALERT_TRIGGERED';
+
+export interface VideoSyncEvent {
+  id: string;
+  cameraId: string;
+  timestampSec: number;
+  eventType: VideoSimulationEventType;
+  payload: {
+    trackingId?: string;
+    class?: DetectionClass;
+    confidence?: number;
+    bbox?: BoundingBox;
+    zone?: string;
+    speedKmh?: number;
+    details?: string;
+    plateNumber?: string;
+    severity?: AlertSeverity;
+  };
 }
 
 // ----------------------------------------------------------------------------
