@@ -28,7 +28,9 @@ export function AlertDrawer() {
     setIsAlertDrawerOpen, 
     acknowledgeAlert,
     resolveAlert,
-    setSelectedCameraId 
+    setSelectedCameraId,
+    seekCamera,
+    playTacticalSound
   } = useSimulation();
 
   if (!isAlertDrawerOpen || !selectedAlert) return null;
@@ -82,8 +84,12 @@ export function AlertDrawer() {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 scanline-layer opacity-20 pointer-events-none" />
-            <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/80 border border-neutral-700 rounded font-mono text-[9px] text-white">
-              {selectedAlert.cameraId} / {selectedAlert.timestamp}
+            <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/85 border border-neutral-700 rounded font-mono text-[9px] text-white flex items-center gap-1.5">
+              <span>{selectedAlert.cameraId}</span>
+              {selectedAlert.videoTimestamp !== undefined && (
+                <span className="text-amber-400 font-bold">T+{selectedAlert.videoTimestamp.toFixed(1)}s</span>
+              )}
+              <span>· {selectedAlert.timestamp}</span>
             </div>
             {/* Target Reticle Indicator */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-red-500 border-dashed rounded flex items-center justify-center">
@@ -154,8 +160,10 @@ export function AlertDrawer() {
             </div>
 
             <div className="p-2.5 rounded bg-sandal-50/70 border border-sandal-200 flex flex-col gap-0.5">
-              <span className="text-[10px] text-stone-500 font-semibold uppercase">Entry trajectory</span>
-              <span className="text-stone-900 font-bold">{selectedAlert.direction || 'ENTRY VECTOR'}</span>
+              <span className="text-[10px] text-stone-500 font-semibold uppercase">Footage timestamp</span>
+              <span className="text-amber-800 font-bold">
+                {selectedAlert.videoTimestamp !== undefined ? `T+${selectedAlert.videoTimestamp.toFixed(1)}s` : 'REAL-TIME'}
+              </span>
               <span className="text-[10px] text-stone-600">{selectedAlert.timestamp}</span>
             </div>
           </div>
@@ -173,6 +181,24 @@ export function AlertDrawer() {
 
         {/* Operational Actions Footer */}
         <div className="p-4 border-t border-sandal-200 bg-sandal-50/60 flex flex-col gap-2 font-mono text-xs">
+          {/* Video-Synchronized Event Replay */}
+          <button
+            onClick={() => {
+              if (selectedAlert) {
+                const startTime = Math.max(0, (selectedAlert.videoTimestamp ?? 1) - 1.5);
+                setSelectedCameraId(selectedAlert.cameraId);
+                seekCamera(selectedAlert.cameraId, startTime, false);
+                playTacticalSound('click');
+                setIsAlertDrawerOpen(false);
+              }
+            }}
+            className="w-full py-2.5 rounded bg-sandal-800 hover:bg-sandal-900 text-white font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm"
+            title="Jump to 1.5s before incident and play footage in real-time"
+          >
+            <RotateCcw className="w-4 h-4 text-amber-300" />
+            <span>Replay event from T+{Math.max(0, (selectedAlert.videoTimestamp ?? 1) - 1.5).toFixed(1)}s</span>
+          </button>
+
           {!selectedAlert.acknowledged ? (
             <button
               onClick={() => acknowledgeAlert(selectedAlert.id)}

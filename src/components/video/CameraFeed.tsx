@@ -16,7 +16,9 @@ import {
   ZoomOut,
   Compass,
   Sliders,
-  AlertTriangle
+  AlertTriangle,
+  Play,
+  Pause
 } from 'lucide-react';
 
 interface CameraFeedProps {
@@ -32,7 +34,15 @@ export function CameraFeed({
   onToggleExpand,
   showControls = true,
 }: CameraFeedProps) {
-  const { playTacticalSound, reportCameraPlaybackTime } = useSimulation();
+  const { 
+    playTacticalSound, 
+    reportCameraPlaybackTime,
+    cameraSeekRequests,
+    highlightedTargetId,
+    highlightedZoneId,
+    playbackSpeed,
+    isAllPaused
+  } = useSimulation();
   const [showBoxes, setShowBoxes] = useState(true);
   const [showZones, setShowZones] = useState(true);
   const [showTrajectory, setShowTrajectory] = useState(true);
@@ -40,16 +50,55 @@ export function CameraFeed({
   const [zoomLevel, setZoomLevel] = useState<number>(1.0);
   const [hasVideoError, setHasVideoError] = useState<boolean>(false);
   const [playbackTime, setPlaybackTime] = useState<number>(0);
+  const [isLocalPaused, setIsLocalPaused] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const lastSeekIdRef = useRef<number>(0);
 
   const videoSrc = camera.videoUrl || camera.feedUrl;
   const isVideo = Boolean(videoSrc && (videoSrc.endsWith('.mp4') || videoSrc.includes('.mp4') || camera.videoUrl));
 
   const isTriggered = camera.activeZones.some(z => z.status === 'TRIGGERED');
 
+  // Handle seek requests targeted to this camera
+  useEffect(() => {
+    const req = cameraSeekRequests?.[camera.id];
+    if (req && req.id !== lastSeekIdRef.current && videoRef.current) {
+      lastSeekIdRef.current = req.id;
+      videoRef.current.currentTime = req.timeSec;
+      setPlaybackTime(req.timeSec);
+      if (req.pause) {
+        videoRef.current.pause();
+        setIsLocalPaused(true);
+      } else {
+        videoRef.current.play().catch(() => {});
+        setIsLocalPaused(false);
+      }
+    }
+  }, [cameraSeekRequests, camera.id]);
+
+  // Synchronize playback speed
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed]);
+
+  // Synchronize global pause state
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isAllPaused) {
+        videoRef.current.pause();
+        setIsLocalPaused(true);
+      } else {
+        videoRef.current.play().catch(() => {});
+        setIsLocalPaused(false);
+      }
+    }
+  }, [isAllPaused]);
+
   // Ensure autoplay starts cleanly across all browser security models
   useEffect(() => {
-    if (isVideo && videoRef.current && !hasVideoError) {
+    if (isVideo && videoRef.current && !hasVideoError && !isAllPaused) {
       videoRef.current.muted = true;
       const playPromise = videoRef.current.play();
       if (playPromise !== undefined) {
@@ -58,7 +107,19 @@ export function CameraFeed({
         });
       }
     }
-  }, [isVideo, videoSrc, hasVideoError, camera.id]);
+  }, [isVideo, videoSrc, hasVideoError, camera.id, isAllPaused]);
+
+  const togglePlayPause = () => {
+    if (!videoRef.current) return;
+    playTacticalSound('click');
+    if (videoRef.current.paused) {
+      videoRef.current.play().catch(() => {});
+      setIsLocalPaused(false);
+    } else {
+      videoRef.current.pause();
+      setIsLocalPaused(true);
+    }
+  };
 
   const handleZoom = (delta: number) => {
     playTacticalSound('click');
@@ -153,16 +214,17 @@ export function CameraFeed({
           {/* Virtual Zones */}
           {showZones && camera.activeZones.map(zone => {
             const pointsStr = zone.points.map(p => `${p.x},${p.y}`).join(' ');
-            const isBreached = zone.status === 'TRIGGERED';
-            const zoneColor = isBreached ? '#ef4444' : filterMode === 'NIGHT_VISION' ? '#22c55e' : '#06b6d4';
+            const isHighlightedZone = zone.id === highlightedZoneId;
+            const isBreached = zone.status === 'TRIGGERED' || isHighlightedZone;
+            const zoneColor = isBreached ? '#ef4444' : isHighlightedZone ? '#f59e0b' : filterMode === 'NIGHT_VISION' ? '#22c55e' : '#06b6d4';
 
             return (
               <g key={zone.id}>
                 <polygon
                   points={pointsStr}
-                  fill={isBreached ? 'rgba(239, 68, 68, 0.28)' : 'rgba(6, 182, 212, 0.08)'}
+                  fill={isBreached ? 'rgba(239, 68, 68, 0.28)' : isHighlightedZone ? 'rgba(245, 158, 11, 0.25)' : 'rgba(6, 182, 212, 0.08)'}
                   stroke={zoneColor}
-                  strokeWidth="0.5"
+                  strokeWidth={isHighlightedZone ? '0.9' : '0.5'}
                   strokeDasharray={isBreached ? 'none' : '1.5 1'}
                   className={isBreached ? 'animate-pulse' : ''}
                 />
@@ -175,7 +237,7 @@ export function CameraFeed({
                     fontFamily="monospace"
                     fontWeight="bold"
                   >
-                    {zone.name} [{zone.status}]
+                    {zone.name} [{isHighlightedZone ? 'FOCUS' : zone.status}]
                   </text>
                 )}
               </g>
@@ -184,20 +246,46 @@ export function CameraFeed({
 
           {/* AI Detections & Bounding Boxes */}
           {showBoxes && camera.currentDetections.map((det) => {
-            const isCritical = det.trackingId === 'PERSON-042';
-            const color = isCritical ? '#ef4444' : filterMode === 'NIGHT_VISION' ? '#22c55e' : '#10b981';
+            const isHighlighted = det.trackingId === highlightedTargetId;
+            const isCritical = det.trackingId === 'P-01' || det.trackingId === 'PERSON-042';
+            const color = isHighlighted ? '#f59e0b' : isCritical ? '#ef4444' : filterMode === 'NIGHT_VISION' ? '#22c55e' : '#10b981';
 
             return (
               <g key={det.id}>
+                {/* Highlighted Target Lock Ring */}
+                {isHighlighted && (
+                  <g>
+                    <circle
+                      cx={det.bbox.x + det.bbox.w / 2}
+                      cy={det.bbox.y + det.bbox.h / 2}
+                      r={Math.max(det.bbox.w, det.bbox.h) * 0.75}
+                      fill="none"
+                      stroke="#f59e0b"
+                      strokeWidth="0.6"
+                      strokeDasharray="2 1.5"
+                    />
+                    <rect
+                      x={det.bbox.x - 1.2}
+                      y={det.bbox.y - 1.2}
+                      width={det.bbox.w + 2.4}
+                      height={det.bbox.h + 2.4}
+                      fill="none"
+                      stroke="#f59e0b"
+                      strokeWidth="0.5"
+                      strokeDasharray="1.5 1"
+                    />
+                  </g>
+                )}
+
                 {/* Bounding Box Rect */}
                 <rect
                   x={det.bbox.x}
                   y={det.bbox.y}
                   width={det.bbox.w}
                   height={det.bbox.h}
-                  fill="none"
+                  fill={isHighlighted ? 'rgba(245, 158, 11, 0.12)' : 'none'}
                   stroke={color}
-                  strokeWidth="0.4"
+                  strokeWidth={isHighlighted ? '0.7' : '0.4'}
                 />
 
                 {/* Corner Brackets */}
@@ -205,11 +293,11 @@ export function CameraFeed({
                   d={`
                     M ${det.bbox.x},${det.bbox.y + 2} L ${det.bbox.x},${det.bbox.y} L ${det.bbox.x + 2},${det.bbox.y}
                     M ${det.bbox.x + det.bbox.w - 2},${det.bbox.y} L ${det.bbox.x + det.bbox.w},${det.bbox.y} L ${det.bbox.x + det.bbox.w},${det.bbox.y + 2}
-                    M ${det.bbox.x},${det.bbox.y + det.bbox.h - 2} L ${det.bbox.x},${det.bbox.y + det.bbox.h} L ${det.bbox.x + 2},${det.bbox.y + det.bbox.h}
+                    M ${det.bbox.x},${det.bbox.y + det.bbox.h - 2} L ${det.bbox.x},${det.bbox.y} L ${det.bbox.x + 2},${det.bbox.y + det.bbox.h}
                     M ${det.bbox.x + det.bbox.w - 2},${det.bbox.y + det.bbox.h} L ${det.bbox.x + det.bbox.w},${det.bbox.y + det.bbox.h} L ${det.bbox.x + det.bbox.w},${det.bbox.y + det.bbox.h - 2}
                   `}
                   stroke={color}
-                  strokeWidth="0.7"
+                  strokeWidth={isHighlighted ? '1.0' : '0.7'}
                   fill="none"
                 />
 
@@ -228,9 +316,9 @@ export function CameraFeed({
                 <rect
                   x={det.bbox.x}
                   y={Math.max(1, det.bbox.y - 3.8)}
-                  width={Math.max(18, det.bbox.w * 1.5)}
+                  width={Math.max(20, det.bbox.w * 1.6)}
                   height="3.6"
-                  fill={isCritical ? 'rgba(239,68,68,0.92)' : 'rgba(10,10,10,0.88)'}
+                  fill={isHighlighted ? 'rgba(180, 83, 9, 0.95)' : isCritical ? 'rgba(239, 68, 68, 0.92)' : 'rgba(10, 10, 10, 0.88)'}
                   stroke={color}
                   strokeWidth="0.3"
                 />
@@ -242,7 +330,7 @@ export function CameraFeed({
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  {det.class.toUpperCase()} {det.trackingId} {(det.confidence * 100).toFixed(0)}%
+                  {isHighlighted ? 'LOCKED ' : ''}{det.class.toUpperCase()} {det.trackingId} {(det.confidence * 100).toFixed(0)}%
                 </text>
               </g>
             );
@@ -258,8 +346,8 @@ export function CameraFeed({
           <span className="font-mono text-[10px] text-neutral-300 drop-shadow hidden sm:inline">
             {camera.name}
           </span>
-          <span className="px-1.5 py-0.5 bg-stone-900/90 border border-stone-700/80 rounded font-mono text-[9px] text-stone-300">
-            RECORDED FEED
+          <span className="px-1.5 py-0.5 bg-stone-900/90 border border-stone-700/80 rounded font-mono text-[9px] text-amber-300 font-semibold">
+            SIMULATED DETECTION
           </span>
           {isTriggered && (
             <span className="px-1.5 py-0.5 bg-red-950/90 border border-red-700 rounded font-mono text-[9px] font-bold text-red-300 animate-pulse">
@@ -270,8 +358,8 @@ export function CameraFeed({
 
         {/* HUD Top Right: Telemetry & Optics Specs */}
         <div className="absolute top-2 right-2 flex items-center gap-1.5 pointer-events-none font-mono text-[9px] text-neutral-300">
-          <span className="px-1.5 py-0.5 bg-black/80 border border-neutral-800 rounded text-amber-400 font-mono font-bold">
-            REC {playbackTime.toFixed(1)}s
+          <span className="px-1.5 py-0.5 bg-black/85 border border-amber-600/70 rounded text-amber-400 font-mono font-bold">
+            T+{playbackTime.toFixed(1)}s
           </span>
           <span className="px-1.5 py-0.5 bg-black/80 border border-neutral-800 rounded">
             {camera.resolution}
@@ -304,6 +392,16 @@ export function CameraFeed({
         {/* HUD Bottom Right: Interactive Controls & Filters */}
         {showControls && (
           <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/85 border border-neutral-800 rounded p-0.5 backdrop-blur-sm">
+            {/* Play/Pause Feed Toggle */}
+            <button
+              onClick={togglePlayPause}
+              className="px-1.5 py-0.5 rounded text-[8px] font-mono transition-colors mr-0.5 border-r border-neutral-800 pr-1.5 flex items-center gap-1 text-stone-300 hover:text-white"
+              title={isLocalPaused ? 'Resume video playback' : 'Pause video playback'}
+            >
+              {isLocalPaused ? <Play className="w-2.5 h-2.5 text-emerald-400" /> : <Pause className="w-2.5 h-2.5 text-amber-400" />}
+              <span>{isLocalPaused ? 'PAUSED' : 'LIVE'}</span>
+            </button>
+
             {/* Filter Mode Selector */}
             <div className="flex items-center gap-0.5 mr-1 border-r border-neutral-800 pr-1">
               <button

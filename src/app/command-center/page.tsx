@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function CommandCenterPage() {
-  const { alerts, setSelectedAlert, setIsAlertDrawerOpen, selectedAlert } = useSimulation();
+  const { alerts, selectedAlert, selectAlertAndSeek } = useSimulation();
   const [viewMode, setViewMode] = useState<'MATRIX' | 'MAP'>('MATRIX');
   const [severityFilter, setSeverityFilter] = useState<'ALL' | 'CRITICAL' | 'HIGH'>('ALL');
 
@@ -129,10 +129,7 @@ export default function CommandCenterPage() {
                     key={alert.id}
                     alert={alert}
                     isSelected={selectedAlert?.id === alert.id}
-                    onSelect={(a) => {
-                      setSelectedAlert(a);
-                      setIsAlertDrawerOpen(true);
-                    }}
+                    onSelect={(a) => selectAlertAndSeek(a)}
                   />
                 ))}
               </div>

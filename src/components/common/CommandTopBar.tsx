@@ -17,7 +17,9 @@ import {
   ChevronDown, 
   CheckCircle2, 
   RotateCcw,
-  UserCheck
+  UserCheck,
+  Play,
+  Pause
 } from 'lucide-react';
 import { TacticalScenarioModal } from './TacticalScenarioModal';
 import { Role, NetworkMode } from '@/types';
@@ -47,7 +49,11 @@ export function CommandTopBar() {
     startJuryDemo,
     stopJuryDemo,
     nextJuryStep,
-    resetToNominal
+    resetToNominal,
+    isAllPaused,
+    setIsAllPaused,
+    playbackSpeed,
+    setPlaybackSpeed
   } = useSimulation();
 
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
@@ -247,6 +253,42 @@ export function CommandTopBar() {
             <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
             <span className="hidden xl:inline">Breach [sim]</span>
           </button>
+
+          {/* Global Video Engine Play/Pause Toggle */}
+          <button
+            onClick={() => {
+              playTacticalSound('click');
+              setIsAllPaused(!isAllPaused);
+            }}
+            className={`flex items-center gap-1.5 px-2 py-1 rounded border font-mono text-[10px] shadow-2xs transition-colors ${
+              isAllPaused 
+                ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold' 
+                : 'bg-white border-sandal-200 text-stone-800 hover:bg-sandal-50'
+            }`}
+            title={isAllPaused ? 'Resume video simulation playback' : 'Pause video simulation playback'}
+          >
+            {isAllPaused ? <Play className="w-3 h-3 text-amber-700" /> : <Pause className="w-3 h-3 text-stone-600" />}
+            <span className="hidden xl:inline">{isAllPaused ? 'RESUME' : 'PAUSE'}</span>
+          </button>
+
+          {/* Playback Speed Multiplier */}
+          <div className="hidden lg:flex items-center bg-white border border-sandal-200 rounded p-0.5 font-mono text-[9px] shadow-2xs">
+            {[0.5, 1, 2].map((spd) => (
+              <button
+                key={spd}
+                onClick={() => {
+                  playTacticalSound('click');
+                  setPlaybackSpeed(spd);
+                }}
+                className={`px-1.5 py-0.5 rounded transition-colors ${
+                  playbackSpeed === spd ? 'bg-stone-900 text-white font-bold' : 'text-stone-500 hover:text-stone-900'
+                }`}
+                title={`Set playback speed to ${spd}x`}
+              >
+                {spd}x
+              </button>
+            ))}
+          </div>
 
           {/* Reset System to Nominal */}
           <button

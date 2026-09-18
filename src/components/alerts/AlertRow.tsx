@@ -50,7 +50,12 @@ export function AlertRow({ alert, isSelected = false, onSelect }: AlertRowProps)
             {alert.type.replace('_', ' ')}
           </span>
         </div>
-        <div className="flex items-center gap-1 text-[10px] font-mono text-stone-500">
+        <div className="flex items-center gap-1.5 text-[10px] font-mono text-stone-500">
+          {alert.videoTimestamp !== undefined && (
+            <span className="px-1 py-0.2 rounded bg-amber-50 border border-amber-200 text-amber-800 font-bold text-[9px]">
+              T+{alert.videoTimestamp.toFixed(1)}s
+            </span>
+          )}
           <Clock className="w-3 h-3 text-stone-400" />
           <span>{alert.timestamp}</span>
         </div>

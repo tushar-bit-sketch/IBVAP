@@ -22,7 +22,8 @@ import {
   NetworkMode,
   IncidentStatus,
   ThreatScoreBreakdown,
-  VideoSyncEvent
+  VideoSyncEvent,
+  CameraSeekRequest
 } from '../types';
 import { 
   INITIAL_CAMERAS, 
@@ -39,6 +40,12 @@ import {
   INITIAL_AUDIT_LOG,
   VIDEO_TIMELINE_EVENTS
 } from '../data/mockData';
+import {
+  CAMERA_SCENARIOS,
+  getActiveDetectionsForCamera,
+  getTargetCountsFromClocks,
+  getTriggeredZonesForCamera
+} from '../data/videoScenarios';
 import { DEMO_USERS } from '../services/authService';
 
 interface SimulationContextType {
@@ -125,6 +132,15 @@ interface SimulationContextType {
   cameraPlaybackTimes: Record<string, number>;
   reportCameraPlaybackTime: (cameraId: string, currentTime: number) => void;
   timelineEvents: VideoSyncEvent[];
+  cameraSeekRequests: Record<string, CameraSeekRequest>;
+  seekCamera: (cameraId: string, timeSec: number, pause?: boolean) => void;
+  highlightedTargetId: string | null;
+  highlightedZoneId: string | null;
+  setHighlightedTargetId: (id: string | null) => void;
+  setHighlightedZoneId: (id: string | null) => void;
+  selectAlertAndSeek: (alert: Alert) => void;
+  isAllPaused: boolean;
+  setIsAllPaused: (paused: boolean) => void;
 }
 
 const SimulationContext = createContext<SimulationContextType | undefined>(undefined);
@@ -177,38 +193,11 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     'CAM-03': 0,
     'CAM-04': 0,
   });
-
-  const reportCameraPlaybackTime = useCallback((cameraId: string, currentTime: number) => {
-    setCameraPlaybackTimes(prev => {
-      if (Math.abs((prev[cameraId] || 0) - currentTime) < 0.15) return prev;
-      return { ...prev, [cameraId]: currentTime };
-    });
-
-    setCameras(prevCams => prevCams.map(cam => {
-      if (cam.id === cameraId) {
-        if (cameraId === 'CAM-01') {
-          const t = currentTime % 10.01;
-          const progress = t / 10.01;
-          const updatedDetections = cam.currentDetections.map(det => {
-            if (det.trackingId === 'PERSON-042') {
-              const smoothX = +(40 + progress * 8).toFixed(2);
-              const smoothY = +(36 + Math.sin(progress * Math.PI) * 4).toFixed(2);
-              return {
-                ...det,
-                bbox: { ...det.bbox, x: smoothX, y: smoothY },
-                speedKmh: +(3.8 + progress * 0.8).toFixed(1),
-                loiterSeconds: Math.floor(t)
-              };
-            }
-            return det;
-          });
-          return { ...cam, playbackTime: currentTime, currentDetections: updatedDetections };
-        }
-        return { ...cam, playbackTime: currentTime };
-      }
-      return cam;
-    }));
-  }, []);
+  const [cameraSeekRequests, setCameraSeekRequests] = useState<Record<string, CameraSeekRequest>>({});
+  const [highlightedTargetId, setHighlightedTargetId] = useState<string | null>(null);
+  const [highlightedZoneId, setHighlightedZoneId] = useState<string | null>(null);
+  const [isAllPaused, setIsAllPaused] = useState<boolean>(false);
+  const seekCounterRef = useRef<number>(1);
 
   // Tactical Audio Synthesizer
   const playTacticalSound = useCallback((type: 'click' | 'alert' | 'breach' | 'ack') => {
@@ -304,47 +293,106 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Deterministic Telemetry Tick & Entity Motion
+  // Video-Synchronized Deterministic Seeking & Clock Control
+  const seekCamera = useCallback((cameraId: string, timeSec: number, pause: boolean = false) => {
+    const newId = ++seekCounterRef.current;
+    setCameraSeekRequests(prev => ({
+      ...prev,
+      [cameraId]: { id: newId, timeSec, pause }
+    }));
+    setCameraPlaybackTimes(prev => {
+      const next = { ...prev, [cameraId]: timeSec };
+      const counts = getTargetCountsFromClocks(next);
+      setMetrics(m => ({
+        ...m,
+        activePersons: counts.persons,
+        activeVehicles: counts.vehicles,
+      }));
+      return next;
+    });
+
+    // Directly recompute deterministic detections and zone states at sought timestamp
+    const newDets = getActiveDetectionsForCamera(cameraId, timeSec, currentTimeStr);
+    const triggeredZones = getTriggeredZonesForCamera(cameraId, timeSec);
+
+    setCameras(prevCams => prevCams.map(cam => {
+      if (cam.id === cameraId) {
+        const updatedZones = cam.activeZones.map(z => ({
+          ...z,
+          status: triggeredZones.includes(z.id) ? ('TRIGGERED' as const) : ('ACTIVE' as const)
+        }));
+        return {
+          ...cam,
+          playbackTime: timeSec,
+          currentDetections: newDets,
+          activeZones: updatedZones
+        };
+      }
+      return cam;
+    }));
+  }, [currentTimeStr]);
+
+  const reportCameraPlaybackTime = useCallback((cameraId: string, currentTime: number) => {
+    setCameraPlaybackTimes(prev => {
+      if (Math.abs((prev[cameraId] || 0) - currentTime) < 0.1) return prev;
+      const next = { ...prev, [cameraId]: currentTime };
+      const counts = getTargetCountsFromClocks(next);
+      setMetrics(m => ({
+        ...m,
+        activePersons: counts.persons,
+        activeVehicles: counts.vehicles,
+      }));
+      return next;
+    });
+
+    const newDetections = getActiveDetectionsForCamera(cameraId, currentTime, currentTimeStr);
+    const triggeredZones = getTriggeredZonesForCamera(cameraId, currentTime);
+
+    setCameras(prevCams => prevCams.map(cam => {
+      if (cam.id === cameraId) {
+        const updatedZones = cam.activeZones.map(z => ({
+          ...z,
+          status: triggeredZones.includes(z.id) ? ('TRIGGERED' as const) : ('ACTIVE' as const)
+        }));
+        return {
+          ...cam,
+          playbackTime: currentTime,
+          currentDetections: newDetections,
+          activeZones: updatedZones
+        };
+      }
+      return cam;
+    }));
+  }, [currentTimeStr]);
+
+  // Select alert, focus camera, seek to video timestamp, pause feed & highlight target
+  const selectAlertAndSeek = useCallback((alert: Alert) => {
+    setSelectedAlert(alert);
+    setIsAlertDrawerOpen(true);
+    setSelectedCameraId(alert.cameraId);
+    setHighlightedTargetId(alert.objectId || null);
+    setHighlightedZoneId(alert.zoneId || null);
+
+    const targetTime = alert.videoTimestamp ?? 0;
+    seekCamera(alert.cameraId, targetTime, true);
+    playTacticalSound('click');
+    logAuditAction('SEEK_ALERT_EVENT', alert.id, `Jumped to T+${targetTime.toFixed(1)}s on ${alert.cameraId} (Target: ${alert.objectId})`);
+  }, [seekCamera, playTacticalSound, logAuditAction]);
+
+  // Deterministic Telemetry Tick (Mode B: Grounded in edge pipeline metrics, no random jitter)
   useEffect(() => {
     const simInterval = setInterval(() => {
-      const jitterFps = +(28.2 + Math.random() * 1.4).toFixed(1);
-      const jitterLatency = Math.floor(88 + Math.random() * 10);
-      const alertLatency = Math.floor(390 + Math.random() * 35);
-
       setMetrics(prev => ({
         ...prev,
-        fpsAverage: jitterFps,
-        inferenceLatencyMs: jitterLatency,
-        alertLatencyMs: alertLatency,
-        lastSyncTimestamp: new Date().toLocaleTimeString('en-US', { hour12: false }) + ' IST'
+        fpsAverage: 29.4,
+        inferenceLatencyMs: 88,
+        alertLatencyMs: 385,
+        lastSyncTimestamp: currentTimeStr
       }));
-
-      // Coordinated spatial motion for tracked objects synchronized with video timeline
-      setCameras(prevCams => prevCams.map(cam => {
-        if (cam.id === 'CAM-01') {
-          const t = (cam.playbackTime || 0) % 10.01;
-          const progress = t / 10.01;
-          const updatedDetections = cam.currentDetections.map(det => {
-            if (det.trackingId === 'PERSON-042') {
-              const smoothX = +(40 + progress * 8).toFixed(2);
-              const smoothY = +(36 + Math.sin(progress * Math.PI) * 4).toFixed(2);
-              return {
-                ...det,
-                bbox: { ...det.bbox, x: smoothX, y: smoothY },
-                speedKmh: +(3.8 + progress * 0.8).toFixed(1),
-                loiterSeconds: Math.floor(t)
-              };
-            }
-            return det;
-          });
-          return { ...cam, currentDetections: updatedDetections, fps: jitterFps };
-        }
-        return { ...cam, fps: jitterFps };
-      }));
-    }, 2000 / playbackSpeed);
+    }, 1000);
 
     return () => clearInterval(simInterval);
-  }, [playbackSpeed]);
+  }, [currentTimeStr]);
 
   // Role Switcher
   const switchRole = useCallback((role: Role) => {
@@ -597,12 +645,35 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const resetToNominal = useCallback(() => {
-    setCameras(INITIAL_CAMERAS);
+    // Reset all video feeds to 0.0s
+    ['CAM-01', 'CAM-02', 'CAM-03', 'CAM-04'].forEach(id => {
+      seekCamera(id, 0.0, false);
+    });
+    setHighlightedTargetId(null);
+    setHighlightedZoneId(null);
+    setIsAllPaused(false);
+    setCameraPlaybackTimes({
+      'CAM-01': 0,
+      'CAM-02': 0,
+      'CAM-03': 0,
+      'CAM-04': 0,
+    });
+    setCameras(INITIAL_CAMERAS.map(cam => ({
+      ...cam,
+      playbackTime: 0,
+      currentDetections: getActiveDetectionsForCamera(cam.id, 0)
+    })));
+    const counts0 = getTargetCountsFromClocks({ 'CAM-01': 0, 'CAM-02': 0, 'CAM-03': 0, 'CAM-04': 0 });
+    setMetrics(prev => ({
+      ...prev,
+      ...INITIAL_METRICS,
+      activePersons: counts0.persons,
+      activeVehicles: counts0.vehicles,
+    }));
     setAlerts(INITIAL_ALERTS);
     setTracks(INITIAL_TRACKS);
     setPlates(INITIAL_PLATES);
     setFaces(INITIAL_FACES);
-    setMetrics(INITIAL_METRICS);
     setEdgeNode(INITIAL_EDGE_NODE);
     setSelectedAlert(null);
     setIsAlertDrawerOpen(false);
@@ -614,7 +685,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     setPendingSyncCount(0);
     playTacticalSound('ack');
     logAuditAction('SYSTEM_RESET', 'NOMINAL_STATE', 'System restored to baseline nominal surveillance state');
-  }, [playTacticalSound, logAuditAction]);
+  }, [seekCamera, playTacticalSound, logAuditAction]);
 
   // Jury Demo Engine (12 Steps per Section 74)
   const startJuryDemo = useCallback(() => {
@@ -782,6 +853,15 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         cameraPlaybackTimes,
         reportCameraPlaybackTime,
         timelineEvents: VIDEO_TIMELINE_EVENTS,
+        cameraSeekRequests,
+        seekCamera,
+        highlightedTargetId,
+        highlightedZoneId,
+        setHighlightedTargetId,
+        setHighlightedZoneId,
+        selectAlertAndSeek,
+        isAllPaused,
+        setIsAllPaused,
       }}
     >
       {children}

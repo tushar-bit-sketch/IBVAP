@@ -495,132 +495,140 @@ export const INITIAL_ALERTS: Alert[] = [
     cameraName: 'BORDER FENCE NORTH',
     zoneId: 'zone-01',
     zoneName: 'BORDER FENCE 01',
-    objectId: 'PERSON-042',
+    objectId: 'P-01',
     objectClass: 'person',
-    confidence: 0.94,
+    confidence: 0.96,
     timestamp: '14:30:45 IST',
-    direction: 'ENTRY',
-    description: 'Tripwire trigger: Subject crossed primary perimeter boundary polygon into buffer zone.',
+    videoTimestamp: 4.2,
+    direction: 'NORTH -> SOUTH',
+    description: 'CRITICAL: Subject P-01 breached Border Fence 01 tripwire boundary polygon at 4.2s.',
     acknowledged: false,
-    snapshotUrl: 'https://images.unsplash.com/photo-1566847936715-5e147ef9caec?auto=format&fit=crop&w=800&q=80',
+    snapshotUrl: '/simulations/cam-01-footage.mp4',
     relatedCameraIds: ['CAM-01', 'CAM-02'],
-    evidenceId: 'EVD-2025-001',
+    evidenceId: 'EVD-101',
     threatBreakdown: {
-      score: 87,
+      score: 94,
       level: 'CRITICAL',
       factors: [
-        { name: 'PERIMETER CROSSING', weight: 35, description: 'Subject crossed virtual fence tripwire' },
-        { name: 'RESTRICTED ZONE ENTRY', weight: 20, description: 'Entry vector detected towards border buffer' },
-        { name: 'LOITERING ANOMALY', weight: 12, description: 'Stationary dwell exceeded 60s baseline' },
-        { name: 'CROSS-CAMERA CONTINUITY', weight: 10, description: 'Track validated from CAM-01 corridor' },
-        { name: 'HIGH DETECTION CONFIDENCE', weight: 10, description: 'YOLOv8x certainty 94.2%' }
+        { name: 'TRIPWIRE BREACH', weight: 40, description: 'Direct crossing of virtual fence polygon line' },
+        { name: 'ENTRY VECTOR', weight: 25, description: 'Rapid perpendicular approach to restricted barrier' },
+        { name: 'TEMPORAL CONTINUITY', weight: 15, description: 'Uninterrupted trajectory confirmed over 3.0s' },
+        { name: 'DETECTION CONFIDENCE', weight: 14, description: 'High YOLOv8x visual certainty (96%)' }
       ],
-      reason: 'Subject entered restricted polygon and remained stationary beyond configured threshold with inbound trajectory.'
+      reason: 'Subject crossed high-priority border tripwire at high speed towards internal cordon.'
     },
     metadata: {
-      dwellTime: '65s',
-      vector: 'NW -> SE',
-      speed: '4.2 km/h'
+      vector: 'INBOUND',
+      dwellTime: '3.0s',
+      speed: '5.1 km/h'
     }
   },
   {
     id: 'ALERT-002',
     severity: 'HIGH',
-    type: 'WATCHLIST_MATCH',
+    type: 'LOITERING',
+    status: 'NEW',
+    cameraId: 'CAM-02',
+    cameraName: 'BORDER FENCE EAST (THERMAL)',
+    zoneId: 'zone-03',
+    zoneName: 'EAST PERIMETER',
+    objectId: 'P-02',
+    objectClass: 'person',
+    confidence: 0.94,
+    timestamp: '14:31:12 IST',
+    videoTimestamp: 5.5,
+    direction: 'STATIONARY',
+    description: 'LOITERING: Subject P-02 dwelled in East Perimeter zone with speed < 1 km/h for over 4.5s.',
+    acknowledged: false,
+    snapshotUrl: '/simulations/cam-02-footage.mp4',
+    relatedCameraIds: ['CAM-02', 'CAM-01'],
+    evidenceId: 'EVD-102',
+    threatBreakdown: {
+      score: 78,
+      level: 'HIGH',
+      factors: [
+        { name: 'PROLONGED DWELL', weight: 40, description: 'Subject velocity below movement baseline for >4.5s' },
+        { name: 'SENSITIVE SECTOR', weight: 25, description: 'East Perimeter restricted fence zone' },
+        { name: 'THERMAL INTEGRITY', weight: 13, description: 'FLIR contrast heat profile confirmed human body 37C' }
+      ],
+      reason: 'Subject halted movement near perimeter fence line with low spatial displacement.'
+    },
+    metadata: {
+      vector: 'STATIONARY',
+      dwellTime: '55s',
+      speed: '0.3 km/h'
+    }
+  },
+  {
+    id: 'ALERT-003',
+    severity: 'HIGH',
+    type: 'ANPR_DETECTED',
     status: 'NEW',
     cameraId: 'CAM-03',
     cameraName: 'CHECKPOINT ALPHA',
     zoneId: 'zone-04',
     zoneName: 'INSPECTION BAY',
-    objectId: 'PERSON-053',
-    objectClass: 'person',
-    confidence: 0.91,
-    timestamp: '14:28:12 IST',
-    description: 'Simulated watchlist hit for synthetic record DEMO-042. Biometric facial match exceeds 90% threshold.',
+    objectId: 'V-01',
+    objectClass: 'truck',
+    confidence: 0.97,
+    timestamp: '14:31:35 IST',
+    videoTimestamp: 3.5,
+    direction: 'APPROACHING',
+    description: 'ANPR OCR MATCH: Heavy vehicle plate TN01AB1234 read at Checkpoint Alpha inspection bay.',
     acknowledged: false,
-    snapshotUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+    snapshotUrl: '/simulations/cam-03-footage.mp4',
     relatedCameraIds: ['CAM-03'],
-    evidenceId: 'EVD-2025-002',
+    evidenceId: 'EVD-103',
     threatBreakdown: {
-      score: 78,
+      score: 72,
       level: 'HIGH',
       factors: [
-        { name: 'WATCHLIST HIT', weight: 45, description: 'ArcFace embedding distance < 0.15' },
-        { name: 'CRITICAL CHECKPOINT ENTRY', weight: 15, description: 'Subject at vehicle inspection barrier' },
-        { name: 'HIGH BIOMETRIC CONFIDENCE', weight: 18, description: 'Synthetic biometric similarity 91.4%' }
+        { name: 'CHECKPOINT ENTRY', weight: 35, description: 'Vehicle entering secured inspection bay zone' },
+        { name: 'OCR CONFIDENCE', weight: 25, description: 'LPRNet dual-pass OCR match 97.4%' },
+        { name: 'COMMERCIAL CLASS', weight: 12, description: 'Heavy goods vehicle requires mandatory cargo manifest check' }
       ],
-      reason: 'Synthetic subject profile matched against local edge watchlist registry. Operator verification required.'
+      reason: 'Heavy carrier entered checkpoint lane; ANPR optical scan successfully registered plate.'
     },
     metadata: {
-      matchScore: '91.4%',
-      targetDatabase: 'SYNTHETIC_WATCHLIST_04',
-      subjectRef: 'DEMO-042'
-    }
-  },
-  {
-    id: 'ALERT-003',
-    severity: 'MEDIUM',
-    type: 'LOITERING',
-    status: 'ACKNOWLEDGED',
-    cameraId: 'CAM-01',
-    cameraName: 'BORDER FENCE NORTH',
-    zoneId: 'zone-02',
-    zoneName: 'RESTRICTED BUFFER',
-    objectId: 'PERSON-042',
-    objectClass: 'person',
-    confidence: 0.92,
-    timestamp: '14:24:00 IST',
-    description: 'Stationary anomaly alert. Subject sustained in restricted buffer zone beyond 60-second limit (64s elapsed).',
-    acknowledged: true,
-    acknowledgedBy: 'OP-ALPHA-07',
-    snapshotUrl: 'https://images.unsplash.com/photo-1566847936715-5e147ef9caec?auto=format&fit=crop&w=800&q=80',
-    relatedCameraIds: ['CAM-01'],
-    evidenceId: 'EVD-2025-003',
-    threatBreakdown: {
-      score: 54,
-      level: 'ELEVATED',
-      factors: [
-        { name: 'DWELL THRESHOLD EXCEEDED', weight: 30, description: 'Stationary in buffer for 64s (>45s rule)' },
-        { name: 'RESTRICTED POLYGON', weight: 14, description: 'Secondary buffer zone presence' },
-        { name: 'LOW MOBILITY', weight: 10, description: 'Speed < 2.0 km/h for 45s' }
-      ],
-      reason: 'Subject entered buffer polygon and halted for over 60 seconds without patrol clearance.'
-    },
-    metadata: {
-      dwellTime: '64s',
-      thresholdLimit: '60s'
+      plateNumber: 'TN01AB1234',
+      vector: 'INSPECTION LANE',
+      speed: '14.0 km/h'
     }
   },
   {
     id: 'ALERT-004',
-    severity: 'INFO',
-    type: 'UNAUTHORIZED_VEHICLE',
-    status: 'RESOLVED',
-    cameraId: 'CAM-03',
-    cameraName: 'CHECKPOINT ALPHA',
-    objectId: 'VEHICLE-031',
-    objectClass: 'truck',
-    confidence: 0.89,
-    timestamp: '14:21:30 IST',
-    description: 'Commercial logistics carrier TN01AB1234 identified at Checkpoint Alpha inspection threshold.',
-    acknowledged: true,
-    acknowledgedBy: 'OP-ALPHA-07',
-    resolvedBy: 'COMMANDER-BOP17',
-    resolutionNotes: 'Commercial logistics transport cleared for scheduled border crossing transit.',
-    snapshotUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
-    relatedCameraIds: ['CAM-03'],
+    severity: 'MEDIUM',
+    type: 'ZONE_INTRUSION',
+    status: 'NEW',
+    cameraId: 'CAM-04',
+    cameraName: 'PATROL CORRIDOR SOUTH',
+    zoneId: 'zone-05',
+    zoneName: 'PATROL RUNWAY',
+    objectId: 'P-05',
+    objectClass: 'person',
+    confidence: 0.90,
+    timestamp: '14:31:48 IST',
+    videoTimestamp: 4.8,
+    direction: 'MULTI-TARGET CONVERGENCE',
+    description: 'GROUP ACTIVITY: Three concurrent subjects (P-04, P-05, P-06) tracked in Patrol Runway corridor.',
+    acknowledged: false,
+    snapshotUrl: '/simulations/cam-04-footage.mp4',
+    relatedCameraIds: ['CAM-04'],
+    evidenceId: 'EVD-104',
     threatBreakdown: {
-      score: 22,
-      level: 'LOW',
+      score: 65,
+      level: 'HIGH',
       factors: [
-        { name: 'VEHICLE ENTRY', weight: 12, description: 'Approached checkpoint corridor' },
-        { name: 'SCHEDULED LOGISTICS', weight: 10, description: 'Manifest pre-registered' }
+        { name: 'GROUP COHESION', weight: 30, description: '3 subjects maintaining concurrent velocity in corridor' },
+        { name: 'PATROL RUNWAY CROSSING', weight: 20, description: 'Entry into restricted patrol transit lane' },
+        { name: 'MULTI-TRACK CERTAINTY', weight: 15, description: 'DeepSORT tracking persistence > 3.0s without ID swap' }
       ],
-      reason: 'Standard vehicle inspection event with valid plate OCR extraction.'
+      reason: 'Cluster of 3 individuals identified moving through designated patrol runway corridor.'
     },
     metadata: {
-      plate: 'TN01AB1234',
-      speed: '18.5 km/h'
+      vector: 'CROSS-SECTOR',
+      groupSize: '3 persons',
+      speed: '4.2 km/h'
     }
   }
 ];

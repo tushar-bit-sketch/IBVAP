@@ -9,7 +9,7 @@
 
 export type DetectionClass = 'person' | 'vehicle' | 'truck' | 'motorcycle' | 'face';
 
-export type AlertSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'INFO';
+export type AlertSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
 
 export type AlertType = 
   | 'INTRUSION' 
@@ -21,7 +21,9 @@ export type AlertType =
   | 'LINE_CROSSING'
   | 'CAMERA_TAMPER'
   | 'ABANDONED_OBJECT'
-  | 'RAPID_MOVEMENT';
+  | 'RAPID_MOVEMENT'
+  | 'ANPR_DETECTED'
+  | 'ZONE_INTRUSION';
 
 export type IncidentStatus = 
   | 'NEW' 
@@ -228,13 +230,14 @@ export interface Alert {
   objectClass: DetectionClass;
   confidence: number;
   timestamp: string;
+  videoTimestamp?: number;
   description: string;
   acknowledged: boolean;
   acknowledgedBy?: string;
   resolvedBy?: string;
   resolutionNotes?: string;
   snapshotUrl?: string;
-  direction?: 'ENTRY' | 'EXIT' | 'STATIONARY';
+  direction?: 'ENTRY' | 'EXIT' | 'STATIONARY' | string;
   threatBreakdown: ThreatScoreBreakdown;
   metadata?: Record<string, string | number | boolean>;
   relatedCameraIds?: string[];
@@ -298,7 +301,8 @@ export type VideoSimulationEventType =
   | 'PERIMETER_BREACH'
   | 'ANPR_DETECTED'
   | 'INCIDENT_CREATED'
-  | 'ALERT_TRIGGERED';
+  | 'ALERT_TRIGGERED'
+  | 'LOITERING';
 
 export interface VideoSyncEvent {
   id: string;
@@ -318,6 +322,56 @@ export interface VideoSyncEvent {
   };
 }
 
+export interface TrajectoryKeyframe {
+  time: number; // seconds
+  x: number; // 0 - 1 normalized horizontal
+  y: number; // 0 - 1 normalized vertical
+  w: number; // 0 - 1 normalized width
+  h: number; // 0 - 1 normalized height
+  confidence: number;
+  speedKmh?: number;
+}
+
+export interface ScenarioTarget {
+  id: string; // e.g. "P-01", "V-01"
+  type: DetectionClass;
+  label: string;
+  appearance: {
+    startTime: number;
+    endTime: number;
+  };
+  trajectory: TrajectoryKeyframe[];
+}
+
+export interface ScenarioEvent {
+  id: string;
+  timestamp: number; // video seconds
+  eventType: VideoSimulationEventType;
+  targetId: string;
+  cameraId: string;
+  zoneId?: string;
+  zoneName?: string;
+  severity?: AlertSeverity;
+  details: string;
+  alert?: Partial<Alert>;
+  evidence?: Partial<Evidence>;
+}
+
+export interface CameraScenario {
+  cameraId: string;
+  videoSource: string;
+  duration: number;
+  targets: ScenarioTarget[];
+  events: ScenarioEvent[];
+  zones: Zone[];
+}
+
+export interface CameraSeekRequest {
+  id: number;
+  timeSec: number;
+  pause?: boolean;
+}
+
 // ----------------------------------------------------------------------------
 // 10. Evidence & Chain of Custody Domain
 // ----------------------------------------------------------------------------
@@ -332,15 +386,25 @@ export interface ChainOfCustodyRecord {
 export interface Evidence {
   id: string;
   eventId: string;
+  incidentId?: string;
+  alertId?: string;
   alertType: AlertType;
   severity: AlertSeverity;
   timestamp: string;
+  videoTimestamp?: number;
   cameraId: string;
   cameraName: string;
   zoneName: string;
   objectId: string;
   confidence: number;
   frameUrl: string;
+  mediaUrl?: string;
+  mediaType?: string;
+  fileHash?: string;
+  durationSeconds?: number;
+  sizeMb?: number;
+  notes?: string;
+  status?: string;
   cryptographicHash: string; // SHA-256 integrity simulation
   digitalSignature: string; // ED25519-SIG simulation
   retainedUntil: string;
