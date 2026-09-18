@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { TacticalScenarioModal } from './TacticalScenarioModal';
 import { Role, NetworkMode } from '@/types';
+import { SpideySenseLogo, Sih2026Logo } from './BrandIdentity';
 
 export function CommandTopBar() {
   const { 
@@ -59,25 +60,33 @@ export function CommandTopBar() {
   return (
     <>
       <header className="h-14 border-b border-sandal-200 bg-white/95 backdrop-blur px-4 flex items-center justify-between select-none z-30 shrink-0">
-        {/* Left: Product & Outpost telemetry */}
+        {/* Left: Product, Team & Outpost telemetry */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-6 h-6 rounded-sm bg-sandal-100 border border-sandal-300 flex items-center justify-center text-sandal-800 text-xs font-mono font-bold group-hover:border-sandal-500 transition-colors">
-              IB
+            <div className="p-0.5 rounded bg-white border border-sandal-200 shadow-2xs group-hover:border-sandal-400 transition-colors">
+              <SpideySenseLogo size="sm" className="h-7 w-7" />
             </div>
             <div className="flex flex-col">
-              <span className="font-mono text-xs tracking-tactical font-bold text-stone-900 hidden sm:inline">
-                IBVAP
-              </span>
-              <span className="font-mono text-[8px] text-stone-500 hidden md:inline leading-none">
-                SIH26187
+              <div className="flex items-center gap-1.5 leading-none">
+                <span className="font-mono text-xs tracking-tactical font-bold text-stone-950">
+                  IBVAP
+                </span>
+                <span className="font-mono text-[8px] text-sandal-800 font-bold px-1 py-0.2 rounded bg-sandal-100 border border-sandal-200/80">
+                  SIH26187
+                </span>
+              </div>
+              <span className="font-mono text-[8px] text-stone-500 hidden md:inline leading-none mt-0.5">
+                SPIDEY SENSE
               </span>
             </div>
           </Link>
 
-          <div className="h-4 w-[1px] bg-sandal-200" />
+          <div className="h-4 w-[1px] bg-sandal-200 hidden sm:block" />
 
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="p-0.5 rounded bg-white border border-sandal-200/80 shadow-2xs" title="Smart India Hackathon 2026">
+              <Sih2026Logo size="xs" className="h-5" />
+            </div>
             <span className="px-2 py-0.5 rounded-sm bg-sandal-50 border border-sandal-200 font-mono text-[10px] text-stone-700 font-medium">
               BOP-17 · Sector North
             </span>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronRight, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FloatingNav } from '@/components/common/FloatingNav';
+import { SpideySenseLogo, Sih2026Logo } from '@/components/common/BrandIdentity';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -31,26 +32,26 @@ export default function LandingPage() {
     },
     {
       title: 'DEEPSORT TRACKING',
-      sub: 'Kalman filter + ReID embeddings',
-      desc: 'Persistent spatiotemporal tracking associating target ID-042 across occlusions, tree coverage, and terrain dips.',
+      sub: 'Multi-camera ReID pipeline',
+      desc: 'Spatio-temporal trajectory correlation preserving subject identity across terrain transitions and line-of-sight occlusions.',
       metric: '< 1 frame loss',
-      metricLabel: 'target [demo]',
+      metricLabel: 'handoff target [demo]',
       tag: 'Stage 03',
     },
     {
       title: 'ANOMALY ENGINE',
-      sub: 'Spatiotemporal behavioural rules',
-      desc: 'Real-time calculation of loiter dwell time (64 s), rapid sprint velocity vectors, and virtual fence breaches.',
+      sub: 'Virtual tripwires & loitering',
+      desc: 'Autonomous spatial rule evaluation flagging fence line breaches, abnormal direction-of-travel, and dwell-time violations.',
       metric: 'CRITICAL',
-      metricLabel: 'alert status [demo]',
+      metricLabel: 'threat triage level',
       tag: 'Stage 04',
     },
     {
       title: 'ALERT DISPATCH',
-      sub: 'Sub-second local bus broadcast',
-      desc: 'Instant alerting dispatched to border outpost operator terminals in under 420 milliseconds.',
+      sub: 'Zero-cloud local notification',
+      desc: 'Immediate sub-second tactical dispatch to command terminals, patrol radios, and cryptographic audit logs.',
       metric: '< 420 ms',
-      metricLabel: 'end-to-end [target]',
+      metricLabel: 'end-to-end target',
       tag: 'Stage 05',
     },
   ];
@@ -100,9 +101,17 @@ export default function LandingPage() {
 
         {/* Hero content */}
         <div className="relative z-10 my-auto py-10 flex flex-col gap-6">
-          <div className="font-mono text-[10px] text-sandal-800 uppercase tracking-wider font-semibold flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-sandal-600" />
-            <span>SIH #26187 — Intelligent Border Video Analytics Platform</span>
+          {/* Canonical team & event attribution chip */}
+          <div className="flex flex-wrap items-center gap-2.5 font-mono text-[11px] mb-1">
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/95 border border-sandal-200/90 shadow-2xs">
+              <SpideySenseLogo size="xs" className="h-4 w-4" />
+              <span className="font-bold text-stone-950 tracking-wider text-[10px]">TEAM SPIDEY SENSE</span>
+            </div>
+            <span className="text-sandal-400 hidden sm:inline">·</span>
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/95 border border-sandal-200/90 shadow-2xs">
+              <Sih2026Logo size="xs" className="h-4" />
+              <span className="text-stone-700 font-semibold tracking-wider text-[10px]">SIH #26187</span>
+            </div>
           </div>
 
           <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight text-stone-950 leading-[0.9] select-none">
@@ -543,8 +552,8 @@ export default function LandingPage() {
       {/* Transition overlay */}
       {isInitializing && (
         <div className="fixed inset-0 z-50 bg-obsidian flex flex-col items-center justify-center p-6 font-mono select-none animate-in fade-in duration-200">
-          <div className="w-10 h-10 rounded-sm bg-white border border-sandal-300 flex items-center justify-center text-stone-900 mb-5 text-sm font-bold shadow-md">
-            IB
+          <div className="p-2.5 rounded-lg bg-white border border-sandal-300 shadow-md mb-5">
+            <SpideySenseLogo size="md" className="h-10 w-10" />
           </div>
           <span className="text-[10px] text-sandal-800 uppercase tracking-wider mb-2 font-semibold">
             BOP-17 defense edge computing cluster
@@ -562,17 +571,29 @@ export default function LandingPage() {
       )}
 
       {/* Footer */}
-      <footer className="px-6 md:px-10 py-5 border-t border-sandal-200 bg-white font-mono text-[10px] text-stone-600 flex flex-col md:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-stone-900">IBVAP</span>
-          <span>— Intelligent Border Video Analytics Platform</span>
+      <footer className="px-6 md:px-10 py-6 border-t border-sandal-200 bg-white font-mono text-[10px] text-stone-600 flex flex-col md:flex-row items-center justify-between gap-4 select-none">
+        <div className="flex items-center gap-2.5">
+          <div className="p-0.5 rounded bg-white border border-sandal-200 shadow-2xs">
+            <SpideySenseLogo size="xs" className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="font-bold text-stone-950">IBVAP</span>
+            <span className="text-stone-500"> — Built by </span>
+            <strong className="text-stone-800 font-semibold">Team SPIDEY SENSE</strong>
+          </div>
         </div>
-        <div>
-          SIH #26187 — AI-based video analytics for border surveillance
-        </div>
+
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
-          <span>Prototype · Simulated telemetry</span>
+          <span className="text-stone-500">Presented for</span>
+          <div className="p-1 rounded bg-[#faf8f5] border border-sandal-200 shadow-2xs">
+            <Sih2026Logo size="xs" className="h-5" />
+          </div>
+          <span className="text-stone-700 font-semibold hidden sm:inline">SIH #26187</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+          <span>Competition Prototype · Simulated telemetry</span>
         </div>
       </footer>
     </main>

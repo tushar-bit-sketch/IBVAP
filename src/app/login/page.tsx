@@ -13,6 +13,7 @@ import {
   Fingerprint, 
   UserCheck 
 } from 'lucide-react';
+import { SpideySenseLogo, Sih2026Logo } from '@/components/common/BrandIdentity';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -64,19 +65,32 @@ export default function LoginPage() {
 
       {/* Login Card */}
       <div className="relative z-10 w-full max-w-md bg-white border border-sandal-200 rounded-xl p-6 sm:p-8 flex flex-col gap-6 shadow-xl">
-        {/* Header */}
-        <div className="flex flex-col gap-1 text-center items-center pb-4 border-b border-sandal-200">
-          <div className="w-12 h-12 rounded-xl bg-sandal-100 border border-sandal-300 flex items-center justify-center text-stone-900 mb-2 shadow-2xs">
-            <span className="font-bold text-base text-sandal-900">IB</span>
+        {/* Header with authoritative SPIDEY SENSE + IBVAP + SIH 2026 */}
+        <div className="flex flex-col gap-2 text-center items-center pb-4 border-b border-sandal-200">
+          {/* SPIDEY SENSE Team Identity */}
+          <div className="p-2 rounded-xl bg-[#faf8f5] border border-sandal-200 shadow-2xs mb-1">
+            <SpideySenseLogo size="lg" className="h-14 w-14 sm:h-16 sm:w-16" />
           </div>
-          <span className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">
-            SECURE DEFENSE ACCESS GATEWAY // SIH26187
-          </span>
-          <h1 className="text-xl font-bold text-stone-950 tracking-wider uppercase">
-            IBVAP // OPERATOR TERMINAL
-          </h1>
-          <div className="flex items-center gap-1.5 text-[9px] text-sandal-900 mt-1 px-2.5 py-0.5 rounded-full bg-sandal-100 border border-sandal-200 font-semibold">
-            <span>PROTOTYPE // SIMULATED AUTHENTICATION</span>
+
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[9px] text-stone-500 uppercase tracking-widest font-semibold">
+              SECURE DEFENSE ACCESS GATEWAY
+            </span>
+            <h1 className="text-xl font-bold text-stone-950 tracking-wider uppercase">
+              IBVAP // OPERATOR TERMINAL
+            </h1>
+            <p className="text-[11px] text-stone-600 font-sans">
+              Intelligent Border Video Analytics Platform
+            </p>
+          </div>
+
+          {/* Secondary SIH 2026 Event Badge */}
+          <div className="flex items-center gap-2 mt-1 px-3 py-1 rounded-md bg-[#faf8f5] border border-sandal-200 shadow-2xs">
+            <Sih2026Logo size="xs" className="h-5" />
+            <div className="h-3 w-[1px] bg-sandal-300" />
+            <span className="text-[9px] text-stone-600 font-semibold uppercase tracking-wider">
+              SIMULATED PROTOTYPE // SIH26187
+            </span>
           </div>
         </div>
 
