@@ -53,8 +53,13 @@ export function CommandTopBar() {
     isAllPaused,
     setIsAllPaused,
     playbackSpeed,
-    setPlaybackSpeed
+    setPlaybackSpeed,
+    activeModelId,
+    aiModels,
+    inferenceMode
   } = useSimulation();
+
+  const activeModel = aiModels.find(m => m.id === activeModelId) || aiModels[0];
 
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
   const [networkMenuOpen, setNetworkMenuOpen] = useState(false);
@@ -143,6 +148,19 @@ export function CommandTopBar() {
               </div>
             )}
           </div>
+
+          {/* AI Core Model & Precision Pill */}
+          <Link
+            href="/models"
+            className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-sm border border-sandal-200 bg-white hover:bg-sandal-50 text-stone-900 font-mono text-[10px] tracking-wider transition-colors shadow-2xs group"
+            title="Open AI Model Training & Optimization Studio"
+          >
+            <Cpu className="w-3 h-3 text-sandal-700 group-hover:text-stone-950 transition-colors" />
+            <span className="font-bold">{activeModel.codeName}</span>
+            <span className="px-1 py-0.2 rounded bg-sandal-100 border border-sandal-200 text-[8px] text-emerald-800 font-bold">
+              {activeModel.precision}
+            </span>
+          </Link>
         </div>
 
         {/* Center: Command Palette Trigger & Jury Demo / Scenarios */}

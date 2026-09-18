@@ -47,6 +47,8 @@ import {
   getTriggeredZonesForCamera
 } from '../data/videoScenarios';
 import { DEMO_USERS } from '../services/authService';
+import { AIModelRecord, CustomVideoSource } from '@/types/ai';
+import { INITIAL_AI_MODELS } from '@/services/aiTrainingService';
 
 interface SimulationContextType {
   // Domain Data State
@@ -141,6 +143,17 @@ interface SimulationContextType {
   selectAlertAndSeek: (alert: Alert) => void;
   isAllPaused: boolean;
   setIsAllPaused: (paused: boolean) => void;
+
+  // Real-Time Computer Vision & AI Training Engine
+  aiModels: AIModelRecord[];
+  activeModelId: string;
+  inferenceMode: 'REALTIME_CV' | 'VIDEO_SYNC';
+  customFeeds: Record<string, CustomVideoSource>;
+  setInferenceMode: (mode: 'REALTIME_CV' | 'VIDEO_SYNC') => void;
+  setActiveModelId: (modelId: string) => void;
+  setCustomFeedForCamera: (cameraId: string, source: CustomVideoSource | null) => void;
+  deployModelWeights: (modelId: string, bopId: string, precision: 'FP32' | 'FP16' | 'INT8') => void;
+  triggerRealtimeCVAlert: (cameraId: string, alertData: Partial<Alert>) => void;
 }
 
 const SimulationContext = createContext<SimulationContextType | undefined>(undefined);
@@ -198,6 +211,12 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   const [highlightedZoneId, setHighlightedZoneId] = useState<string | null>(null);
   const [isAllPaused, setIsAllPaused] = useState<boolean>(false);
   const seekCounterRef = useRef<number>(1);
+
+  // AI Models & Real-Time Computer Vision State
+  const [aiModels, setAiModels] = useState<AIModelRecord[]>(INITIAL_AI_MODELS);
+  const [activeModelId, setActiveModelIdState] = useState<string>('yolov8x-borderguard-v3');
+  const [inferenceMode, setInferenceModeState] = useState<'REALTIME_CV' | 'VIDEO_SYNC'>('REALTIME_CV');
+  const [customFeeds, setCustomFeeds] = useState<Record<string, CustomVideoSource>>({});
 
   // Tactical Audio Synthesizer
   const playTacticalSound = useCallback((type: 'click' | 'alert' | 'breach' | 'ack') => {
@@ -790,6 +809,139 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     logAuditAction('ZONE_DELETED', zoneId, `Zone ${zoneId} removed from camera ${cameraId}`);
   }, [logAuditAction]);
 
+  // AI Model & Real-Time Computer Vision Handlers
+  const setInferenceMode = useCallback((mode: 'REALTIME_CV' | 'VIDEO_SYNC') => {
+    playTacticalSound('click');
+    setInferenceModeState(mode);
+    logAuditAction('INFERENCE_MODE_CHANGE', `MODE:${mode}`, `Vision engine switched to ${mode}`);
+  }, [playTacticalSound, logAuditAction]);
+
+  const setActiveModelId = useCallback((modelId: string) => {
+    playTacticalSound('click');
+    setActiveModelIdState(modelId);
+    const model = aiModels.find(m => m.id === modelId);
+    logAuditAction('MODEL_SWITCH', `MODEL:${modelId}`, `Active edge vision model switched to ${model?.name || modelId}`);
+  }, [aiModels, playTacticalSound, logAuditAction]);
+
+  const setCustomFeedForCamera = useCallback((cameraId: string, source: CustomVideoSource | null) => {
+    playTacticalSound('click');
+    if (source) {
+      setCustomFeeds(prev => ({ ...prev, [cameraId]: source }));
+      setCameras(prev => prev.map(c => c.id === cameraId ? {
+        ...c,
+        videoUrl: source.url,
+        feedUrl: source.url,
+        sourceLabel: source.name,
+        sourceType: source.type === 'LIVE_WEBCAM' ? 'SIMULATION' : 'RECORDED_DEMO'
+      } : c));
+      logAuditAction('FEED_INGESTED', cameraId, `Custom video source "${source.name}" bound to channel ${cameraId}`);
+    } else {
+      setCustomFeeds(prev => {
+        const next = { ...prev };
+        delete next[cameraId];
+        return next;
+      });
+      // Restore default camera video
+      const defaultCam = INITIAL_CAMERAS.find(c => c.id === cameraId);
+      if (defaultCam) {
+        setCameras(prev => prev.map(c => c.id === cameraId ? {
+          ...c,
+          videoUrl: defaultCam.videoUrl,
+          feedUrl: defaultCam.feedUrl,
+          sourceLabel: defaultCam.sourceLabel,
+          sourceType: defaultCam.sourceType
+        } : c));
+      }
+      logAuditAction('FEED_RESET', cameraId, `Restored standard border camera feed for channel ${cameraId}`);
+    }
+  }, [playTacticalSound, logAuditAction]);
+
+  const deployModelWeights = useCallback((modelId: string, bopId: string, precision: 'FP32' | 'FP16' | 'INT8') => {
+    playTacticalSound('breach');
+    setAiModels(prev => prev.map(m => {
+      if (m.id === modelId) {
+        return {
+          ...m,
+          status: 'ACTIVE_PRODUCTION' as const,
+          deployedBopNodeId: bopId,
+          precision,
+          lastTrainedAt: new Date().toISOString().replace('T', ' ').slice(0, 19) + ' IST'
+        };
+      }
+      return m;
+    }));
+    setActiveModelIdState(modelId);
+    logAuditAction('WEIGHTS_DEPLOYED', `${modelId}:${bopId}`, `Model weights deployed to edge node ${bopId} with ${precision} quantization`);
+  }, [playTacticalSound, logAuditAction]);
+
+  const triggerRealtimeCVAlert = useCallback((cameraId: string, alertData: Partial<Alert>) => {
+    const cam = cameras.find(c => c.id === cameraId) || cameras[0];
+    const alertId = `ALT-${Date.now()}`;
+    const timestampStr = new Date().toISOString().split('T')[1].slice(0, 8) + ' IST';
+
+    const newAlert: Alert = {
+      id: alertId,
+      severity: alertData.severity || 'CRITICAL',
+      type: alertData.type || 'PERIMETER_BREACH',
+      status: 'NEW',
+      cameraId: cam.id,
+      cameraName: cam.name,
+      zoneId: alertData.zoneId || 'ZONE-STERILE',
+      zoneName: alertData.zoneName || 'STERILE PERIMETER BUFFER',
+      objectId: alertData.objectId || 'INTRUDER-REALTIME',
+      objectClass: alertData.objectClass || 'person',
+      confidence: alertData.confidence || 0.94,
+      timestamp: timestampStr,
+      videoTimestamp: cameraPlaybackTimes[cameraId] || 0,
+      description: alertData.description || `Real-time CV detected sterile perimeter intrusion on channel ${cam.id}`,
+      acknowledged: false,
+      direction: 'ENTRY',
+      threatBreakdown: alertData.threatBreakdown || {
+        score: 88,
+        level: 'CRITICAL',
+        factors: [
+          { name: 'REALTIME STERILE ZONE PENETRATION', weight: 45, description: 'Live CV confirmed entry into restricted polygon' },
+          { name: 'TARGET VELOCITY VECTOR', weight: 25, description: 'Direct heading towards international border line' },
+          { name: 'YOLOV8x CONFIDENCE > 90%', weight: 18, description: 'High-confidence bounding box match' }
+        ],
+        reason: 'Real-time video analytics confirmed rapid unauthorized crossing of the zero-tolerance buffer line.'
+      }
+    };
+
+    playTacticalSound('alert');
+    setAlerts(prev => [newAlert, ...prev]);
+    setSelectedAlert(newAlert);
+    setIsAlertDrawerOpen(true);
+    setSelectedCameraId(cam.id);
+
+    // Create evidence item
+    const evidenceId = `EVD-${Date.now()}`;
+    const newEvidence: Evidence = {
+      id: evidenceId,
+      eventId: alertId,
+      alertId: alertId,
+      alertType: newAlert.type,
+      severity: newAlert.severity,
+      timestamp: timestampStr,
+      videoTimestamp: cameraPlaybackTimes[cameraId] || 0,
+      cameraId: cam.id,
+      cameraName: cam.name,
+      zoneName: newAlert.zoneName || 'RESTRICTED AREA',
+      objectId: newAlert.objectId,
+      confidence: newAlert.confidence,
+      frameUrl: cam.feedUrl,
+      cryptographicHash: Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
+      digitalSignature: 'ED25519-SIG-BOP17-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+      retainedUntil: '2026-10-18',
+      integrityVerified: true,
+      chainOfCustody: [
+        { actor: 'YOLOv8x Edge Real-time Core', action: 'EVIDENCE_INGESTED', timestamp: timestampStr }
+      ]
+    };
+    setEvidence(prev => [newEvidence, ...prev]);
+    logAuditAction('REALTIME_ALERT_FIRED', alertId, `Real-time alert triggered on camera ${cameraId} by AI vision engine`);
+  }, [cameras, cameraPlaybackTimes, playTacticalSound, logAuditAction]);
+
   return (
     <SimulationContext.Provider
       value={{
@@ -862,6 +1014,15 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         selectAlertAndSeek,
         isAllPaused,
         setIsAllPaused,
+        aiModels,
+        activeModelId,
+        inferenceMode,
+        customFeeds,
+        setInferenceMode,
+        setActiveModelId,
+        setCustomFeedForCamera,
+        deployModelWeights,
+        triggerRealtimeCVAlert,
       }}
     >
       {children}

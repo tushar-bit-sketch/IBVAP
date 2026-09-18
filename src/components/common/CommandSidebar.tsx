@@ -67,6 +67,13 @@ export function CommandSidebar() {
       badge: null,
     },
     {
+      label: 'AI Models & Training',
+      href: '/models',
+      icon: Cpu,
+      badge: 'v3.4 PROD',
+      badgeColor: 'bg-stone-900 text-amber-300 border border-stone-700',
+    },
+    {
       label: 'Tracking',
       href: '/tracking',
       icon: Route,
