@@ -73,8 +73,8 @@ export default function LandingPage() {
       <section className="relative min-h-screen flex flex-col justify-between pt-14 px-6 md:px-12 lg:px-16 pb-8 border-b border-sandal-200 overflow-hidden bg-gradient-to-b from-white via-obsidian to-sandal-100/40">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2000&q=85"
-            alt="Arid Border Terrain"
+            src="/landing/hero-border-cctv.jpg"
+            alt="Border Outpost Surveillance Frame"
             className="w-full h-full object-cover opacity-15 filter contrast-105"
           />
           <div className="absolute inset-0 scanline-layer opacity-40 pointer-events-none" />
@@ -334,8 +334,8 @@ export default function LandingPage() {
 
           <div className="relative aspect-video rounded-sm overflow-hidden border border-sandal-300 bg-neutral-950 select-none shadow-md">
             <img
-              src="https://images.unsplash.com/photo-1566847936715-5e147ef9caec?auto=format&fit=crop&w=1600&q=80"
-              alt="Demo surveillance scene with detection overlay"
+              src="/landing/perception-scene-cctv.jpg"
+              alt="Fixed border surveillance CCTV frame"
               className="w-full h-full object-cover filter contrast-110 grayscale-[30%]"
             />
             <div className="absolute inset-0 scanline-layer opacity-20 pointer-events-none" />
@@ -399,8 +399,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
             <div className="lg:col-span-7 relative aspect-video rounded-sm overflow-hidden border border-sandal-300 bg-neutral-950 shadow-md">
               <img
-                src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80"
-                alt="Demo ANPR vehicle frame"
+                src="/landing/anpr-checkpoint-cctv.jpg"
+                alt="Checkpoint ANPR surveillance camera frame"
                 className="w-full h-full object-cover filter contrast-105 grayscale-[20%]"
               />
               <div className="absolute inset-0 scanline-layer opacity-15 pointer-events-none" />
