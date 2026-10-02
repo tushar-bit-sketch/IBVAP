@@ -156,6 +156,10 @@ interface SimulationContextType {
   triggerRealtimeCVAlert: (cameraId: string, alertData: Partial<Alert>) => void;
   latestNotification: Alert | null;
   clearLatestNotification: () => void;
+  suppressScreenPopups: boolean;
+  setSuppressScreenPopups: (suppress: boolean) => void;
+  dismissAndSuppressPopups: () => void;
+  numberPopActive: boolean;
 }
 
 const SimulationContext = createContext<SimulationContextType | undefined>(undefined);
@@ -220,9 +224,33 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   const [inferenceMode, setInferenceModeState] = useState<'REALTIME_CV' | 'VIDEO_SYNC'>('REALTIME_CV');
   const [customFeeds, setCustomFeeds] = useState<Record<string, CustomVideoSource>>({});
 
-  // Non-blocking Toast Notification on TopBar Bell Icon
+  // Non-blocking Toast Notification & Number Pop on TopBar Bell Icon
   const [latestNotification, setLatestNotification] = useState<Alert | null>(null);
+  const [suppressScreenPopups, setSuppressScreenPopupsState] = useState<boolean>(false);
+  const [numberPopActive, setNumberPopActive] = useState<boolean>(false);
   const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const numberPopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Safely hydrate popup suppression preference from localStorage in browser
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('ibvap_suppress_popups');
+      if (stored === 'true') {
+        setSuppressScreenPopupsState(true);
+      }
+    }
+  }, []);
+
+  const triggerNumberPop = useCallback(() => {
+    if (numberPopTimeoutRef.current) {
+      clearTimeout(numberPopTimeoutRef.current);
+    }
+    setNumberPopActive(true);
+    numberPopTimeoutRef.current = setTimeout(() => {
+      setNumberPopActive(false);
+      numberPopTimeoutRef.current = null;
+    }, 2400);
+  }, []);
 
   const clearLatestNotification = useCallback(() => {
     if (notificationTimeoutRef.current) {
@@ -232,7 +260,35 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     setLatestNotification(null);
   }, []);
 
+  const setSuppressScreenPopups = useCallback((val: boolean) => {
+    setSuppressScreenPopupsState(val);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ibvap_suppress_popups', String(val));
+    }
+    if (val) {
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current);
+        notificationTimeoutRef.current = null;
+      }
+      setLatestNotification(null);
+    }
+  }, []);
+
+  const dismissAndSuppressPopups = useCallback(() => {
+    clearLatestNotification();
+    setSuppressScreenPopups(true);
+    triggerNumberPop();
+  }, [clearLatestNotification, setSuppressScreenPopups, triggerNumberPop]);
+
   const dispatchNotification = useCallback((alert: Alert) => {
+    // Always trigger dynamic number pop on notification bell icon
+    triggerNumberPop();
+
+    // If screen pop-ups have been dismissed / suppressed, do NOT pop up on the screen
+    if (suppressScreenPopups) {
+      return;
+    }
+
     if (notificationTimeoutRef.current) {
       clearTimeout(notificationTimeoutRef.current);
     }
@@ -241,7 +297,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
       setLatestNotification(null);
       notificationTimeoutRef.current = null;
     }, 5500);
-  }, []);
+  }, [suppressScreenPopups, triggerNumberPop]);
 
   // Tactical Audio Synthesizer
   const playTacticalSound = useCallback((type: 'click' | 'alert' | 'breach' | 'ack') => {
@@ -1050,6 +1106,10 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         triggerRealtimeCVAlert,
         latestNotification,
         clearLatestNotification,
+        suppressScreenPopups,
+        setSuppressScreenPopups,
+        dismissAndSuppressPopups,
+        numberPopActive,
       }}
     >
       {children}

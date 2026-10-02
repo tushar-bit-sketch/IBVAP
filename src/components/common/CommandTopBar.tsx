@@ -60,9 +60,12 @@ export function CommandTopBar() {
     setPlaybackSpeed,
     activeModelId,
     aiModels,
-    inferenceMode,
     latestNotification,
     clearLatestNotification,
+    suppressScreenPopups,
+    setSuppressScreenPopups,
+    dismissAndSuppressPopups,
+    numberPopActive,
     selectAlertAndSeek,
     acknowledgeAlert
   } = useSimulation();
@@ -326,27 +329,38 @@ export function CommandTopBar() {
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
 
-          {/* Notification Bell with Badge & Dropdown Popover */}
+          {/* Notification Bell with Badge, Dynamic "+1" Number Pop & Dropdown Popover */}
           <div className="relative">
             <button
               onClick={() => {
                 playTacticalSound('click');
                 setNotificationMenuOpen(!notificationMenuOpen);
               }}
-              className={`p-1.5 rounded border transition-colors shadow-2xs relative ${
+              className={`p-1.5 rounded border transition-all duration-200 shadow-2xs relative ${
                 notificationMenuOpen || unacknowledgedCount > 0
                   ? 'border-sandal-400 bg-sandal-100 text-stone-900 font-bold'
                   : 'border-sandal-200 text-stone-600 hover:text-stone-900 hover:bg-sandal-50'
               }`}
               title={`Alert Notifications (${unacknowledgedCount} unacknowledged)`}
             >
-              <Bell className="w-3.5 h-3.5" />
+              <Bell className={`w-3.5 h-3.5 transition-transform duration-300 ${numberPopActive ? 'scale-125 text-red-600' : ''}`} />
               {unacknowledgedCount > 0 && (
-                <span className="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] rounded-full bg-red-600 text-white text-[8px] font-mono font-bold flex items-center justify-center animate-pulse">
+                <span className={`absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] rounded-full bg-red-600 text-white text-[8px] font-mono font-bold flex items-center justify-center transition-all duration-300 shadow-xs ${
+                  numberPopActive ? 'scale-125 ring-2 ring-red-400 bg-red-700 animate-pulse' : ''
+                }`}>
                   {unacknowledgedCount > 99 ? '99+' : unacknowledgedCount}
                 </span>
               )}
             </button>
+
+            {/* Dynamic "+1" Number Pop-up directly on Notification Bell Icon */}
+            {numberPopActive && (
+              <div className="absolute -top-3.5 -right-2 pointer-events-none z-50 animate-in zoom-in-75 fade-in slide-in-from-bottom-2 duration-300">
+                <span className="px-1.5 py-0.2 rounded-full bg-red-600 text-white text-[9px] font-mono font-black shadow-md border border-white flex items-center gap-0.5 tracking-tight animate-bounce">
+                  +1
+                </span>
+              </div>
+            )}
 
             {/* Notification Popover Dropdown */}
             {notificationMenuOpen && (
@@ -373,6 +387,25 @@ export function CommandTopBar() {
                       <span>Ack all</span>
                     </button>
                   )}
+                </div>
+
+                {/* Screen Popups Suppression Status & Quick Toggle */}
+                <div className="px-3 py-1.5 bg-sandal-50/90 border-b border-sandal-100 flex items-center justify-between text-[10px]">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${suppressScreenPopups ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                    <span className="text-stone-600 text-[10px]">
+                      Screen Pop-ups: <strong className="text-stone-900">{suppressScreenPopups ? 'Silenced (Numbers Only)' : 'Active (Toasts On)'}</strong>
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSuppressScreenPopups(!suppressScreenPopups);
+                      playTacticalSound('click');
+                    }}
+                    className="text-[9px] font-bold text-stone-700 hover:text-stone-950 underline transition-colors"
+                  >
+                    {suppressScreenPopups ? 'Enable Toasts' : 'Mute Toasts'}
+                  </button>
                 </div>
 
                 <div className="max-h-72 overflow-y-auto divide-y divide-sandal-100">
@@ -480,8 +513,8 @@ export function CommandTopBar() {
         </div>
       </header>
 
-      {/* Floating Tactical Pop-up Notification on the Notification Icon */}
-      {latestNotification && (
+      {/* Floating Tactical Pop-up Notification on the Notification Icon (Hidden when user has dismissed / silenced popups) */}
+      {!suppressScreenPopups && latestNotification && (
         <div className="fixed top-16 right-4 z-50 w-80 md:w-96 bg-white/95 backdrop-blur-md border border-sandal-300 rounded shadow-xl p-3 font-mono text-xs flex flex-col gap-2 animate-in slide-in-from-top-2 duration-200">
           <div className="flex items-center justify-between border-b border-sandal-200 pb-1.5">
             <div className="flex items-center gap-2">
@@ -496,10 +529,11 @@ export function CommandTopBar() {
               <span className="text-[10px] text-stone-700 font-bold">{latestNotification.cameraId}</span>
             </div>
             <button
-              onClick={clearLatestNotification}
-              className="text-stone-400 hover:text-stone-800 p-0.5 rounded transition-colors"
-              title="Dismiss notification"
+              onClick={dismissAndSuppressPopups}
+              className="text-stone-400 hover:text-stone-900 p-0.5 rounded transition-colors flex items-center gap-1 text-[9px] hover:bg-sandal-100 px-1"
+              title="Dismiss & switch to notification numbers on icon only"
             >
+              <span className="text-[8px] font-bold uppercase hidden sm:inline">Dismiss</span>
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -541,6 +575,13 @@ export function CommandTopBar() {
               className="py-1 px-2.5 rounded bg-sandal-100 hover:bg-sandal-200 text-stone-800 font-medium text-[10px] text-center border border-sandal-300 transition-colors"
             >
               Acknowledge
+            </button>
+            <button
+              onClick={dismissAndSuppressPopups}
+              className="py-1 px-2 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-[9px] text-center border border-stone-300 transition-colors"
+              title="Dismiss and show numbers only on notification icon"
+            >
+              Dismiss (Numbers Only)
             </button>
           </div>
         </div>
