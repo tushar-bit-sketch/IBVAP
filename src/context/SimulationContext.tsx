@@ -230,6 +230,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   const [numberPopActive, setNumberPopActive] = useState<boolean>(false);
   const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const numberPopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastAlertByCamRef = useRef<Record<string, number>>({});
 
   // Safely hydrate popup suppression preference from localStorage in browser
   useEffect(() => {
@@ -616,7 +617,8 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     setAlerts(prev => [newAlert, ...prev]);
     setSelectedAlert(newAlert);
     dispatchNotification(newAlert);
-    setSelectedCameraId('CAM-01');
+    // Keep camera in grid mode if currently in grid mode
+    setSelectedCameraId(prev => (prev === null ? null : 'CAM-01'));
 
     if (networkMode === 'OFFLINE') {
       setPendingSyncCount(prev => prev + 1);
@@ -685,7 +687,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
       setAlerts(prev => [alertItem, ...prev]);
       setSelectedAlert(alertItem);
       dispatchNotification(alertItem);
-      setSelectedCameraId('CAM-03');
+      setSelectedCameraId(prev => (prev === null ? null : 'CAM-03'));
     } else if (scenarioId === '04_LOITERING') {
       const loiterAlert: Alert = {
         id: `ALERT-${Math.floor(400 + Math.random() * 500)}`,
@@ -720,7 +722,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
       setAlerts(prev => [loiterAlert, ...prev]);
       setSelectedAlert(loiterAlert);
       dispatchNotification(loiterAlert);
-      setSelectedCameraId('CAM-04');
+      setSelectedCameraId(prev => (prev === null ? null : 'CAM-04'));
     } else if (scenarioId === '09_COMMUNICATION_LOSS') {
       setNetworkMode('OFFLINE');
     } else if (scenarioId === '01_NORMAL_OPERATIONS') {
@@ -956,6 +958,13 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   }, [playTacticalSound, logAuditAction]);
 
   const triggerRealtimeCVAlert = useCallback((cameraId: string, alertData: Partial<Alert>) => {
+    const nowMs = Date.now();
+    const lastAlert = lastAlertByCamRef.current[cameraId] || 0;
+    if (nowMs - lastAlert < 45000) {
+      return; // Keep detection alerts to minimal: debounce 45s per camera
+    }
+    lastAlertByCamRef.current[cameraId] = nowMs;
+
     const cam = cameras.find(c => c.id === cameraId) || cameras[0];
     const alertId = `ALT-${Date.now()}`;
     const timestampStr = new Date().toISOString().split('T')[1].slice(0, 8) + ' IST';
@@ -993,7 +1002,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     setAlerts(prev => [newAlert, ...prev]);
     setSelectedAlert(newAlert);
     dispatchNotification(newAlert);
-    setSelectedCameraId(cam.id);
+    // Preserves grid mode: does NOT voluntarily switch camera focus
 
     // Create evidence item
     const evidenceId = `EVD-${Date.now()}`;

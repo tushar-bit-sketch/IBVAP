@@ -45,11 +45,13 @@ export class RealtimeVisionEngine {
   private frameCount = 0;
   private lastProcessTimestamp = 0;
   private falseAlarmsFilteredCount = 0;
+  private lastAlertTimestamp = 0;
+  private readonly ALERT_COOLDOWN_MS = 60000; // Minimal alert rate limit (60s)
 
   constructor(config: Partial<VisionEngineConfig> = {}) {
     this.config = {
-      minConfidence: config.minConfidence ?? 0.65,
-      motionSensitivity: config.motionSensitivity ?? 35,
+      minConfidence: config.minConfidence ?? 0.88,
+      motionSensitivity: config.motionSensitivity ?? 20,
       falseAlarmFilter: config.falseAlarmFilter ?? true,
       activeModelName: config.activeModelName ?? 'YOLOv8x-BorderGuard-v3.4 [TensorRT INT8]',
       sterileZones: config.sterileZones ?? [],
@@ -103,7 +105,7 @@ export class RealtimeVisionEngine {
     // Frame differencing motion extraction if previous frame exists
     if (this.prevFrameData && this.prevFrameData.length === currentPixels.length) {
       const step = 4; // Sub-sample grid for optimal 60fps throughput
-      const motionThreshold = Math.max(15, 60 - this.config.motionSensitivity);
+      const motionThreshold = Math.max(38, 75 - this.config.motionSensitivity);
 
       for (let y = 0; y < height; y += step) {
         for (let x = 0; x < width; x += step) {
@@ -204,16 +206,18 @@ export class RealtimeVisionEngine {
       }
     }
 
-    // Filter out insignificant noise (e.g. leaves/dust)
+    // Filter out insignificant noise (e.g. leaves/dust/compression artifacts)
     const validBoxes: BoundingBox[] = [];
     for (const c of clusters) {
-      if (this.config.falseAlarmFilter && c.count < 3) {
+      if (this.config.falseAlarmFilter && c.count < 9) {
         this.falseAlarmsFilteredCount++;
         continue;
       }
 
-      const w = Math.min(45, Math.max(4, c.maxX - c.minX + 3));
-      const h = Math.min(60, Math.max(6, c.maxY - c.minY + 4));
+      const w = Math.min(45, Math.max(5, c.maxX - c.minX + 3));
+      const h = Math.min(60, Math.max(8, c.maxY - c.minY + 4));
+      if (w < 6 || h < 8) continue; // Keep target count to strictly validated physical entities
+
       const x = Math.max(0, Math.min(96, c.minX - 1.5));
       const y = Math.max(0, Math.min(94, c.minY - 2));
 
@@ -270,8 +274,8 @@ export class RealtimeVisionEngine {
         track.lastSeenMs = now;
         track.framesTracked++;
         track.confidence = Math.min(0.97, +(track.confidence + 0.02).toFixed(2));
-      } else if (this.activeTracks.size < 8) {
-        // Spawn new track
+      } else if (this.activeTracks.size < 2) {
+        // Spawn new track - strictly minimal concurrency (max 1-2 targets per camera)
         const id = `trk_${Date.now()}_${this.trackCounter++}`;
         const trackingNum = (this.trackCounter % 900) + 100;
         const isVehicle = box.w > 18 || (box.w / box.h) > 1.2;
@@ -281,7 +285,7 @@ export class RealtimeVisionEngine {
           id,
           trackingId: isVehicle ? `VEH-${trackingNum}` : `INTRUDER-${trackingNum}`,
           class: trackClass,
-          confidence: +(0.75 + Math.random() * 0.15).toFixed(2),
+          confidence: +(0.86 + Math.random() * 0.08).toFixed(2),
           bbox: box,
           targetBbox: box,
           centroid,
@@ -297,9 +301,9 @@ export class RealtimeVisionEngine {
       }
     }
 
-    // Prune stale tracks not seen for > 1.2 seconds
+    // Prune stale tracks not seen for > 3.5 seconds (prevents track churn / re-detection of same target)
     Array.from(this.activeTracks.entries()).forEach(([id, track]) => {
-      if (now - track.lastSeenMs > 1200) {
+      if (now - track.lastSeenMs > 3500) {
         this.activeTracks.delete(id);
       }
     });
@@ -325,9 +329,10 @@ export class RealtimeVisionEngine {
         track.inSterileZone = true;
         track.zoneBreached = breachedZoneName;
 
-        // Trigger alert if tracked for > 3 frames and haven't fired yet
-        if (!track.alertFired && track.framesTracked >= 3) {
+        // Trigger alert only if sustained tracking (> 18 frames) and alert cooldown satisfied
+        if (!track.alertFired && track.framesTracked >= 18 && (now - this.lastAlertTimestamp > this.ALERT_COOLDOWN_MS)) {
           track.alertFired = true;
+          this.lastAlertTimestamp = now;
           if (this.config.onAlertTriggered) {
             const detectionResult: RealtimeDetectionResult = {
               id: track.id,

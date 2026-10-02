@@ -154,7 +154,7 @@ export function CameraGrid({ cameras: propCameras }: CameraGridProps) {
         // Standard 2x2 Tactical Matrix
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full h-full">
           {cameras.map((camera) => (
-            <div key={camera.id} className="relative group cursor-pointer" onClick={() => setSelectedCameraId(camera.id)}>
+            <div key={camera.id} className="relative group">
               <CameraFeed
                 camera={camera}
                 isExpanded={false}

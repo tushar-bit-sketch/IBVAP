@@ -85,6 +85,7 @@ export function CameraFeed({
   const visionEngineRef = useRef<RealtimeVisionEngine | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const lastProcessTimeRef = useRef<number>(0);
+  const lastAlertTimeRef = useRef<number>(0);
 
   const activeModel = aiModels.find(m => m.id === activeModelId) || aiModels[0];
   const customSource = customFeeds[camera.id];
@@ -95,15 +96,21 @@ export function CameraFeed({
   const isTriggered = camera.activeZones.some(z => z.status === 'TRIGGERED') || 
     (inferenceMode === 'REALTIME_CV' && realtimeDetections.some(d => d.inSterileZone));
 
-  // Initialize Real-time Computer Vision Engine
+  // Initialize Real-time Computer Vision Engine with Minimal Target Detection Tuning
   useEffect(() => {
     visionEngineRef.current = new RealtimeVisionEngine({
-      minConfidence: 0.65,
-      motionSensitivity: 40,
+      minConfidence: 0.88,
+      motionSensitivity: 20,
       falseAlarmFilter: true,
       activeModelName: activeModel.name,
       sterileZones: camera.activeZones,
       onAlertTriggered: (detection, zoneName) => {
+        const now = Date.now();
+        if (now - lastAlertTimeRef.current < 60000) {
+          return; // Strictly limit alerts to at most once per 60s per camera
+        }
+        lastAlertTimeRef.current = now;
+
         triggerRealtimeCVAlert(camera.id, {
           objectId: detection.trackingId,
           objectClass: detection.class,
