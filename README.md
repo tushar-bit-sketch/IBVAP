@@ -39,6 +39,7 @@ The **Intelligent Border Video Analytics Platform (IBVAP)** transforms legacy an
 * `/incidents` — Incident Lifecycle Triage Board (New, Acknowledged, Investigating, Escalated, Resolved, False Positive)
 * `/alerts` — Real-Time Breach & Threat Alert Management
 * `/detections` — AI Perception Stream & Bounding Box Confidence Metrics
+* `/models` — AI Model Training Studio, Hyperparameter Tuning & TensorRT INT8 Edge Compiler
 * `/tracking` — Cross-Camera DeepSORT ReID & Spatiotemporal Trajectory Timeline
 * `/anpr` — Automatic Number Plate Extraction, OCR Validation & Hotlist Queries
 * `/faces` — Synthetic Biometric Mesh & 512-dim ArcFace Embedding Visualizer
