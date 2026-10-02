@@ -154,6 +154,8 @@ interface SimulationContextType {
   setCustomFeedForCamera: (cameraId: string, source: CustomVideoSource | null) => void;
   deployModelWeights: (modelId: string, bopId: string, precision: 'FP32' | 'FP16' | 'INT8') => void;
   triggerRealtimeCVAlert: (cameraId: string, alertData: Partial<Alert>) => void;
+  latestNotification: Alert | null;
+  clearLatestNotification: () => void;
 }
 
 const SimulationContext = createContext<SimulationContextType | undefined>(undefined);
@@ -217,6 +219,29 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   const [activeModelId, setActiveModelIdState] = useState<string>('yolov8x-borderguard-v3');
   const [inferenceMode, setInferenceModeState] = useState<'REALTIME_CV' | 'VIDEO_SYNC'>('REALTIME_CV');
   const [customFeeds, setCustomFeeds] = useState<Record<string, CustomVideoSource>>({});
+
+  // Non-blocking Toast Notification on TopBar Bell Icon
+  const [latestNotification, setLatestNotification] = useState<Alert | null>(null);
+  const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearLatestNotification = useCallback(() => {
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+      notificationTimeoutRef.current = null;
+    }
+    setLatestNotification(null);
+  }, []);
+
+  const dispatchNotification = useCallback((alert: Alert) => {
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
+    setLatestNotification(alert);
+    notificationTimeoutRef.current = setTimeout(() => {
+      setLatestNotification(null);
+      notificationTimeoutRef.current = null;
+    }, 5500);
+  }, []);
 
   // Tactical Audio Synthesizer
   const playTacticalSound = useCallback((type: 'click' | 'alert' | 'breach' | 'ack') => {
@@ -534,7 +559,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     playTacticalSound('breach');
     setAlerts(prev => [newAlert, ...prev]);
     setSelectedAlert(newAlert);
-    setIsAlertDrawerOpen(true);
+    dispatchNotification(newAlert);
     setSelectedCameraId('CAM-01');
 
     if (networkMode === 'OFFLINE') {
@@ -603,7 +628,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
       playTacticalSound('alert');
       setAlerts(prev => [alertItem, ...prev]);
       setSelectedAlert(alertItem);
-      setIsAlertDrawerOpen(true);
+      dispatchNotification(alertItem);
       setSelectedCameraId('CAM-03');
     } else if (scenarioId === '04_LOITERING') {
       const loiterAlert: Alert = {
@@ -638,7 +663,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
       playTacticalSound('alert');
       setAlerts(prev => [loiterAlert, ...prev]);
       setSelectedAlert(loiterAlert);
-      setIsAlertDrawerOpen(true);
+      dispatchNotification(loiterAlert);
       setSelectedCameraId('CAM-04');
     } else if (scenarioId === '09_COMMUNICATION_LOSS') {
       setNetworkMode('OFFLINE');
@@ -911,7 +936,7 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
     playTacticalSound('alert');
     setAlerts(prev => [newAlert, ...prev]);
     setSelectedAlert(newAlert);
-    setIsAlertDrawerOpen(true);
+    dispatchNotification(newAlert);
     setSelectedCameraId(cam.id);
 
     // Create evidence item
@@ -1023,6 +1048,8 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         setCustomFeedForCamera,
         deployModelWeights,
         triggerRealtimeCVAlert,
+        latestNotification,
+        clearLatestNotification,
       }}
     >
       {children}

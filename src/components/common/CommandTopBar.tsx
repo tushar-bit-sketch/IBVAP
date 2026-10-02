@@ -19,7 +19,11 @@ import {
   RotateCcw,
   UserCheck,
   Play,
-  Pause
+  Pause,
+  X,
+  ExternalLink,
+  CheckCheck,
+  AlertTriangle
 } from 'lucide-react';
 import { TacticalScenarioModal } from './TacticalScenarioModal';
 import { Role, NetworkMode } from '@/types';
@@ -56,13 +60,18 @@ export function CommandTopBar() {
     setPlaybackSpeed,
     activeModelId,
     aiModels,
-    inferenceMode
+    inferenceMode,
+    latestNotification,
+    clearLatestNotification,
+    selectAlertAndSeek,
+    acknowledgeAlert
   } = useSimulation();
 
   const activeModel = aiModels.find(m => m.id === activeModelId) || aiModels[0];
 
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
   const [networkMenuOpen, setNetworkMenuOpen] = useState(false);
+  const [notificationMenuOpen, setNotificationMenuOpen] = useState(false);
 
   const unacknowledgedCount = alerts.filter(a => !a.acknowledged).length;
 
@@ -317,6 +326,137 @@ export function CommandTopBar() {
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
 
+          {/* Notification Bell with Badge & Dropdown Popover */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                playTacticalSound('click');
+                setNotificationMenuOpen(!notificationMenuOpen);
+              }}
+              className={`p-1.5 rounded border transition-colors shadow-2xs relative ${
+                notificationMenuOpen || unacknowledgedCount > 0
+                  ? 'border-sandal-400 bg-sandal-100 text-stone-900 font-bold'
+                  : 'border-sandal-200 text-stone-600 hover:text-stone-900 hover:bg-sandal-50'
+              }`}
+              title={`Alert Notifications (${unacknowledgedCount} unacknowledged)`}
+            >
+              <Bell className="w-3.5 h-3.5" />
+              {unacknowledgedCount > 0 && (
+                <span className="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] rounded-full bg-red-600 text-white text-[8px] font-mono font-bold flex items-center justify-center animate-pulse">
+                  {unacknowledgedCount > 99 ? '99+' : unacknowledgedCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification Popover Dropdown */}
+            {notificationMenuOpen && (
+              <div className="absolute top-full right-0 mt-1 w-80 md:w-96 bg-white border border-sandal-200 rounded shadow-xl py-2 z-50 font-mono text-xs animate-in fade-in duration-150">
+                <div className="px-3 pb-2 border-b border-sandal-100 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Bell className="w-3.5 h-3.5 text-stone-700" />
+                    <span className="font-bold text-stone-900 text-xs">
+                      Alert Notifications
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded bg-red-100 text-red-800 text-[9px] font-bold">
+                      {unacknowledgedCount} pending
+                    </span>
+                  </div>
+                  {unacknowledgedCount > 0 && (
+                    <button
+                      onClick={() => {
+                        alerts.filter(a => !a.acknowledged).forEach(a => acknowledgeAlert(a.id));
+                        playTacticalSound('ack');
+                      }}
+                      className="text-[9px] text-stone-500 hover:text-stone-950 flex items-center gap-1 font-semibold"
+                    >
+                      <CheckCheck className="w-3 h-3 text-emerald-600" />
+                      <span>Ack all</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="max-h-72 overflow-y-auto divide-y divide-sandal-100">
+                  {alerts.slice(0, 6).map(alert => (
+                    <div
+                      key={alert.id}
+                      className={`p-2.5 hover:bg-sandal-50/70 transition-colors flex flex-col gap-1 ${
+                        !alert.acknowledged ? 'bg-sandal-50/40' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-[10px]">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            !alert.acknowledged ? 'bg-red-600' : 'bg-stone-300'
+                          }`} />
+                          <span className="font-bold text-stone-900">{alert.cameraId}</span>
+                          <span className={`px-1 py-0.2 rounded text-[8px] font-bold ${
+                            alert.severity === 'CRITICAL' ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-amber-100 text-amber-800 border border-amber-200'
+                          }`}>
+                            {alert.severity}
+                          </span>
+                        </div>
+                        <span className="text-[9px] text-stone-500">{alert.timestamp}</span>
+                      </div>
+
+                      <p className="text-[10px] text-stone-700 line-clamp-1 font-medium">
+                        {alert.description}
+                      </p>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-[9px] text-stone-500">{alert.zoneName || 'PERIMETER BUFFER'}</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              selectAlertAndSeek(alert);
+                              setNotificationMenuOpen(false);
+                            }}
+                            className="text-[9px] text-stone-900 font-bold hover:underline flex items-center gap-0.5"
+                          >
+                            <span>Inspect</span>
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </button>
+                          {!alert.acknowledged && (
+                            <button
+                              onClick={() => {
+                                acknowledgeAlert(alert.id);
+                                playTacticalSound('ack');
+                              }}
+                              className="text-[9px] text-emerald-700 hover:text-emerald-900 font-bold"
+                            >
+                              Ack
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {alerts.length === 0 && (
+                    <div className="p-4 text-center text-stone-400 text-xs">
+                      No alert notifications in current queue.
+                    </div>
+                  )}
+                </div>
+
+                <div className="px-3 pt-2 border-t border-sandal-100 flex items-center justify-between">
+                  <Link
+                    href="/alerts"
+                    onClick={() => setNotificationMenuOpen(false)}
+                    className="text-[10px] text-stone-700 hover:text-stone-950 font-bold flex items-center gap-1"
+                  >
+                    <span>View all {alerts.length} alerts</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </Link>
+                  <button
+                    onClick={() => setNotificationMenuOpen(false)}
+                    className="text-[9px] text-stone-500 hover:text-stone-800"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Audio Alert Toggle */}
           <button
             onClick={() => setSoundAlerts(!soundAlerts)}
@@ -339,6 +479,72 @@ export function CommandTopBar() {
           </div>
         </div>
       </header>
+
+      {/* Floating Tactical Pop-up Notification on the Notification Icon */}
+      {latestNotification && (
+        <div className="fixed top-16 right-4 z-50 w-80 md:w-96 bg-white/95 backdrop-blur-md border border-sandal-300 rounded shadow-xl p-3 font-mono text-xs flex flex-col gap-2 animate-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center justify-between border-b border-sandal-200 pb-1.5">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
+              <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                latestNotification.severity === 'CRITICAL' ? 'bg-red-100 text-red-800 border border-red-300' :
+                latestNotification.severity === 'HIGH' ? 'bg-amber-100 text-amber-800 border border-amber-300' :
+                'bg-blue-100 text-blue-800 border border-blue-300'
+              }`}>
+                {latestNotification.severity} EVENT
+              </span>
+              <span className="text-[10px] text-stone-700 font-bold">{latestNotification.cameraId}</span>
+            </div>
+            <button
+              onClick={clearLatestNotification}
+              className="text-stone-400 hover:text-stone-800 p-0.5 rounded transition-colors"
+              title="Dismiss notification"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-stone-950 text-[11px] uppercase tracking-wide">
+                {latestNotification.type.replace('_', ' ')}
+              </span>
+              <span className="text-[9px] text-stone-500">{latestNotification.timestamp}</span>
+            </div>
+            <p className="text-[10px] text-stone-600 leading-snug line-clamp-2">
+              {latestNotification.description}
+            </p>
+            {latestNotification.threatBreakdown && (
+              <div className="flex items-center justify-between text-[9px] text-stone-500 mt-0.5 pt-1 border-t border-sandal-100">
+                <span>Threat Score: <strong className="text-red-700">{latestNotification.threatBreakdown.score}/100</strong></span>
+                <span>{latestNotification.zoneName || 'STERILE PERIMETER'}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 pt-1 border-t border-sandal-200">
+            <button
+              onClick={() => {
+                selectAlertAndSeek(latestNotification);
+                clearLatestNotification();
+              }}
+              className="flex-1 py-1 px-2 rounded bg-stone-900 hover:bg-stone-800 text-white font-bold text-[10px] text-center transition-colors flex items-center justify-center gap-1"
+            >
+              <ExternalLink className="w-3 h-3" />
+              <span>Inspect Event</span>
+            </button>
+            <button
+              onClick={() => {
+                acknowledgeAlert(latestNotification.id);
+                clearLatestNotification();
+              }}
+              className="py-1 px-2.5 rounded bg-sandal-100 hover:bg-sandal-200 text-stone-800 font-medium text-[10px] text-center border border-sandal-300 transition-colors"
+            >
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Active Jury Demo Progress Banner */}
       {juryDemoActive && juryDemoCurrent && (
